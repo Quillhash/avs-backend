@@ -1,3 +1,6 @@
 ## QuillShield AVS
 
-The following AVS providess AI Powered Audits with a Premium Insurance Coverage
+QuillShield Provides Cryptoeconomically secured AI Powered Audits with a Premium Insurance Coverage
+
+
+
