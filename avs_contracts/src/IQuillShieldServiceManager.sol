@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 interface IQuillShieldServiceManager {
     event AuditTaskCreated(uint32 indexed taskIndex, Task task);
 
-    event AuditTaskResponded(uint32 indexed taskIndex, Task task, address operator);
+    event AuditTaskResponded(uint32 indexed taskIndex, Task task, address operator, string ipfs);
 
 
     event InsuranceTaskCreated(uint32 indexed taskIndex, Task task);

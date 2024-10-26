@@ -24,6 +24,14 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
 
     uint32 public latestTaskNum;
 
+    uint256 public constant minApprovals = 1;
+    uint256 public constant minDisapprovals = 1;
+
+
+
+    // Enums, these are the statuses of reports 
+    enum ReportStatus { Pending, Accepted, Rejected }
+
     // mapping of task indices to all tasks hashes
     // when a task is created, task hash is stored here,
     // and responses need to pass the actual task,
@@ -35,6 +43,23 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
 
     // mapping of task indices to hash of abi.encode(taskResponse, taskResponseMetadata)
     mapping(address => mapping(uint32 => bytes)) public allTaskResponses;
+
+
+    event AuditReportVerified(
+        uint32 indexed taskIndex,
+        address indexed contractAddress,
+        address indexed operator,
+        address verifier,
+        bool approved
+    );
+
+    event ReportStatusChanged(
+        uint32 indexed taskIndex,
+        bytes32 fingerprint,
+        ReportStatus status
+    );
+
+
 
     modifier onlyOperator() {
         require(
@@ -70,7 +95,7 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
         auditTask.taskCreatedBlock = uint32(block.number);
         auditTask.createdBy = msg.sender;
 
-        // store hash of task onchain, emit event, and increase taskNum
+        // store hash of task onchain, emit event, and increase taskNum, this hash is later used to verify whether the responded task actually exists
         allTaskHashes[latestTaskNum] = keccak256(abi.encode(auditTask));
         emit AuditTaskCreated(latestTaskNum, auditTask);
         latestTaskNum = latestTaskNum + 1;
@@ -105,34 +130,36 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
         uint32 referenceTaskIndex,
         bytes memory signature
     ) external {
-        // check that the task is valid, hasn't been responsed yet, and is being responded in time
+
+        //checks whether the task provided by the operator was actually created within the network
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
             "supplied task does not match the one recorded in the contract"
         );
+
+        //checks whether a response has already been given to the current task
         require(
             allTaskResponses[msg.sender][referenceTaskIndex].length == 0,
             "Operator has already responded to the task"
         );
 
-        // The message that was signed
-        bytes32 messageHash = keccak256(abi.encodePacked("Hello, ", task.contractAddress));
+        // checks whether the signature made on the ipfs is correct, by checking the signature on the hash of ipfs string provided by operator
+        bytes32 messageHash = keccak256(abi.encode(ipfs));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
         if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
             revert();
         }
 
-        // updating the storage with task responses
+        // marks the task as done essentially
         allTaskResponses[msg.sender][referenceTaskIndex] = signature;
 
-
-
-
+        //store the task against the opreator's id at a given contract address
         userAudits[task.createdBy][task.contractAddress] = ipfs;
 
+
         // emitting event
-        emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
+        emit AuditTaskResponded(referenceTaskIndex, task, msg.sender, ipfs);
     }
 
 
@@ -165,6 +192,11 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
         allTaskResponses[msg.sender][referenceTaskIndex] = signature;
 
         // emitting event
-        emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
+        //emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
+    }
+
+
+    function getConfirmations(Task calldata task) external{
+
     }
 }
