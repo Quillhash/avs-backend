@@ -20,46 +20,43 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
  * @author Eigen Labs, Inc.
  */
 contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServiceManager {
+
+
     using ECDSAUpgradeable for bytes32;
 
     uint32 public latestTaskNum;
 
-    uint256 public constant minApprovals = 1;
-    uint256 public constant minDisapprovals = 1;
 
-
-
-    // Enums, these are the statuses of reports 
-    enum ReportStatus { Pending, Accepted, Rejected }
-
+    
     // mapping of task indices to all tasks hashes
     // when a task is created, task hash is stored here,
     // and responses need to pass the actual task,
 
+    
+    // which is hashed onchain and checked against this mapping
+    mapping(uint32 => bytes32) public allTaskHashes; // taskIndex => taskHash
+
+
+
+    // Mapping of task indices to the operator's response (signature)
+    mapping(uint32 => bytes) public allTaskResponses; // taskIndex => response (signature)
+
+
     // maps user addresses to contract address to the ipfs hash of audits
     mapping(address => mapping(address => string)) public userAudits;
-    // which is hashed onchain and checked against this mapping
-    mapping(uint32 => bytes32) public allTaskHashes;
-
-    // mapping of task indices to hash of abi.encode(taskResponse, taskResponseMetadata)
-    mapping(address => mapping(uint32 => bytes)) public allTaskResponses;
 
 
-    event AuditReportVerified(
-        uint32 indexed taskIndex,
-        address indexed contractAddress,
-        address indexed operator,
-        address verifier,
-        bool approved
-    );
-
-    event ReportStatusChanged(
-        uint32 indexed taskIndex,
-        bytes32 fingerprint,
-        ReportStatus status
-    );
+    // Mapping of task indices to the audit report's IPFS hash
+    mapping(uint32 => string) public auditReports; // taskIndex => IPFS hash
 
 
+    // Approval and disapproval counts per task index
+    mapping(uint32 => uint256) public approvals; // taskIndex => approval count
+    mapping(uint32 => uint256) public disapprovals; // taskIndex => disapproval count
+
+
+    // Tracks if a verifier has already verified a task
+    mapping(uint32 => mapping(address => bool)) public hasVerified; // taskIndex => verifier => bool
 
     modifier onlyOperator() {
         require(
@@ -97,8 +94,10 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
 
         // store hash of task onchain, emit event, and increase taskNum, this hash is later used to verify whether the responded task actually exists
         allTaskHashes[latestTaskNum] = keccak256(abi.encode(auditTask));
+
+        // emit audit task event
         emit AuditTaskCreated(latestTaskNum, auditTask);
-        latestTaskNum = latestTaskNum + 1;
+        latestTaskNum += 1;
 
         return auditTask;
     }
@@ -118,7 +117,7 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
         // store hash of task onchain, emit event, and increase taskNum
         allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
         emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
-        latestTaskNum = latestTaskNum + 1;
+        latestTaskNum += 1;
 
         return insuranceTask;
     }
@@ -129,7 +128,7 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
         string memory ipfs,
         uint32 referenceTaskIndex,
         bytes memory signature
-    ) external {
+    ) onlyOperator() external {
 
         //checks whether the task provided by the operator was actually created within the network
         require(
@@ -139,7 +138,7 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
 
         //checks whether a response has already been given to the current task
         require(
-            allTaskResponses[msg.sender][referenceTaskIndex].length == 0,
+            allTaskResponses[referenceTaskIndex].length == 0,
             "Operator has already responded to the task"
         );
 
@@ -151,11 +150,13 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
             revert();
         }
 
-        // marks the task as done essentially
-        allTaskResponses[msg.sender][referenceTaskIndex] = signature;
 
-        //store the task against the opreator's id at a given contract address
-        userAudits[task.createdBy][task.contractAddress] = ipfs;
+
+        // Store the operator's response (signature)
+        allTaskResponses[referenceTaskIndex] = signature;
+
+        //store the ipfs hash of the audit report associated with task
+        auditReports[referenceTaskIndex] = ipfs;
 
 
         // emitting event
@@ -168,35 +169,136 @@ contract QuillShieldServiceManager is ECDSAServiceManagerBase, IQuillShieldServi
     function respondToInsuranceTask(
         Task calldata task,
         uint32 referenceTaskIndex,
-        bytes memory signature
-    ) external {
+        bytes memory signature,
+        bool approved
+    ) onlyOperator() external {
         // check that the task is valid, hasn't been responsed yet, and is being responded in time
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
             "supplied task does not match the one recorded in the contract"
         );
         require(
-            allTaskResponses[msg.sender][referenceTaskIndex].length == 0,
+            allTaskResponses[referenceTaskIndex].length == 0,
             "Operator has already responded to the task"
         );
 
         // The message that was signed
-        bytes32 messageHash = keccak256(abi.encodePacked("Hello, ", task.contractAddress));
+        bytes32 messageHash = keccak256(abi.encode(approved));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
         if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
             revert();
         }
 
-        // updating the storage with task responses
-        allTaskResponses[msg.sender][referenceTaskIndex] = signature;
 
+        
+        // updating the storage with task responses
+        allTaskResponses[referenceTaskIndex] = signature;
+
+
+        if(approved){
+            //logic for release of tokens
+        }
+
+
+       emit InsuranceTaskResponded(referenceTaskIndex, task, msg.sender, approved);
         // emitting event
         //emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
     }
 
 
-    function getConfirmations(Task calldata task) external{
 
+
+
+    function verifyAuditReport(
+        Task calldata task,
+        uint32 referenceTaskIndex,
+        address operator,
+        bool approval,
+        bytes memory signature
+    ) external onlyOperator() {
+
+        require(
+            keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
+            "supplied task does not match the one recorded in the contract"
+        );
+
+
+        // Check if the operator has responded to this task
+        require(
+            bytes(auditReports[referenceTaskIndex]).length != 0,
+            "Operator has not responded"
+        );
+
+        // Check if the verifier has already verified this operator's response
+        require(
+            !hasVerified[referenceTaskIndex][msg.sender],
+            "Already verified"
+        );
+
+
+        // Mark as verified
+        hasVerified[referenceTaskIndex][msg.sender] = true;
+
+         // Verify signature
+        bytes32 taskHash = keccak256(abi.encode(task));
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(taskHash, operator, approval)
+        );
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
+
+        if (
+            magicValue !=
+            ECDSAStakeRegistry(stakeRegistry).isValidSignature(
+                ethSignedMessageHash,
+                signature
+            )
+        ) {
+            revert("Invalid signature");
+        }
+
+        // Update approval or disapproval count
+        if (approval) {
+            approvals[referenceTaskIndex] += 1;
+        } else {
+            disapprovals[referenceTaskIndex] += 1;
+        }
+
+        // Emit verification event
+        emit AuditReportVerified(
+            referenceTaskIndex,
+            task.contractAddress,
+            operator,
+            msg.sender,
+            approval
+        );
+
+    }
+
+    // Getter functions for approvals and disapprovals per task index (per audit report)
+    function getApprovalCount(uint32 taskIndex)
+        external
+        view
+        returns (uint256)
+    {
+        return approvals[taskIndex];
+    }
+
+    function getDisapprovalCount(uint32 taskIndex)
+        external
+        view
+        returns (uint256)
+    {
+        return disapprovals[taskIndex];
+    }
+
+    // Function to get the audit report (IPFS hash) for a task index
+    function getAuditReport(uint32 taskIndex)
+        external
+        view
+        returns (string memory)
+    {
+        return auditReports[taskIndex];
     }
 }
