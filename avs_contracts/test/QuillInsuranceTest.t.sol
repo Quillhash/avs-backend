@@ -6,6 +6,7 @@ import "forge-std/console.sol";
 import "../src/QuillInsurance.sol";
 import "../src/QuillToken.sol";
 import "../src/QuillAIReports.sol";
+import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 contract QuillInsuranceTest is Test {
     QuillToken quillToken;
@@ -245,5 +246,88 @@ contract QuillInsuranceTest is Test {
             durationFactor) / 1e36;
 
         assertEq(premium, expectedPremium);
+    }
+
+    function testUpdatePolicyStatus() public {
+        // Set up the policy and pay the premium
+        vm.prank(policyOwner);
+        quillInsurance.createPolicy(1, 1000 ether, 30 days);
+
+        vm.prank(policyOwner);
+        quillToken.approve(address(quillInsurance), type(uint256).max);
+
+        vm.prank(policyOwner);
+        quillInsurance.payPremium(1);
+
+        // Now, as the insurer, update the policy status to Inactive
+        vm.prank(insurer);
+        quillInsurance.updatePolicyStatus(
+            1,
+            QuillInsurance.PolicyStatus.Inactive
+        );
+
+        // Retrieve the policy
+        QuillInsurance.Policy memory policy = quillInsurance.getPolicy(1);
+
+        // Check that the policy status is updated to Inactive
+        assertEq(
+            uint256(policy.status),
+            uint256(QuillInsurance.PolicyStatus.Inactive)
+        );
+
+        // Try to update the policy status as a non-insurer (should fail)
+        vm.prank(policyOwner);
+        vm.expectRevert();
+        quillInsurance.updatePolicyStatus(
+            1,
+            QuillInsurance.PolicyStatus.Active
+        );
+    }
+    function testAddAndRemoveInsurer() public {
+        // As admin, add a new insurer
+        address newInsurer = address(0x6);
+
+        vm.prank(admin);
+        quillInsurance.addInsurer(newInsurer);
+
+        // Verify that newInsurer has INSURER_ROLE
+        bytes32 insurerRole = quillInsurance.INSURER_ROLE();
+        assertTrue(quillInsurance.hasRole(insurerRole, newInsurer));
+
+        // As admin, remove the insurer
+        vm.prank(admin);
+        quillInsurance.removeInsurer(newInsurer);
+
+        // Verify that newInsurer no longer has INSURER_ROLE
+        assertFalse(quillInsurance.hasRole(insurerRole, newInsurer));
+
+        // Try to add an insurer as a non-admin (should fail)
+        vm.prank(policyOwner);
+        vm.expectRevert();
+        quillInsurance.addInsurer(address(0x7));
+
+        // Try to remove an insurer as a non-admin (should fail)
+        vm.prank(policyOwner);
+        vm.expectRevert();
+        quillInsurance.removeInsurer(newInsurer);
+    }
+    function testPolicyExpiration() public {
+        // Set up the policy and pay the premium
+        vm.prank(policyOwner);
+        quillInsurance.createPolicy(1, 1000 ether, 1 days);
+
+        vm.prank(policyOwner);
+        quillToken.approve(address(quillInsurance), type(uint256).max);
+
+        vm.prank(policyOwner);
+        quillInsurance.payPremium(1);
+
+        // Fast forward time beyond the policy duration
+        vm.warp(block.timestamp + 2 days);
+
+        // Policy owner tries to file a claim (should fail due to expiration)
+        vm.prank(policyOwner);
+        vm.expectRevert("Policy has expired");
+        quillInsurance.fileClaim(1, "ipfs://evidence");
     }
 }
