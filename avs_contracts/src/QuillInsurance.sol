@@ -103,7 +103,9 @@ contract QuillInsurance is AccessControl {
         uint256 _duration
     ) public {
         // Retrieve audit report
-        (, uint8 riskScore, ) = quillAIReports.getAuditReport(_submissionId);
+        uint8 riskScore = quillAIReports
+            .getAuditReport(_submissionId)
+            .riskScore;
 
         // Calculate premium
         uint256 premiumAmount = calculatePremium(
@@ -176,7 +178,7 @@ contract QuillInsurance is AccessControl {
         // Simplified premium calculation formula
         // Premium = (Risk Score %) * Coverage Amount * (Duration / 1 year)
         // Risk Score is between 0-100, so we divide by 100 to get percentage
-        uint256 riskFactor = uint256(_riskScore) * 1e18; // Convert to 18 decimals
+        uint256 riskFactor = uint256(_riskScore) * 1e16; // Convert to 18 decimals
         uint256 durationFactor = (_duration * 1e18) / 31536000; // Seconds in a year
 
         premium = (_coverageAmount * riskFactor * durationFactor) / 1e36; // Adjusting decimals
@@ -235,11 +237,7 @@ contract QuillInsurance is AccessControl {
         if (_approved) {
             policy.status = PolicyStatus.ClaimApproved;
             // Payout the coverage amount to the policy owner
-            quillToken.transferFrom(
-                address(this),
-                policy.owner,
-                policy.coverageAmount
-            );
+            quillToken.transfer(policy.owner, policy.coverageAmount);
 
             emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
         } else {
@@ -269,6 +267,10 @@ contract QuillInsurance is AccessControl {
      */
     function getPolicy(uint256 _policyId) public view returns (Policy memory) {
         return policies[_policyId];
+    }
+
+    function getClaim(uint256 claimId) public view returns (Claim memory) {
+        return claims[claimId];
     }
 
     /**

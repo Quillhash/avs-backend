@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 // Importing OpenZeppelin's AccessControl for role management
 import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
-contract quillAIReports is AccessControl {
+contract QuillAIReports is AccessControl {
     bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
 
     struct Submission {
