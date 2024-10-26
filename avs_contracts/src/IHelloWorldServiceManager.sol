@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-interface IQuillShieldServiceManager {
+interface IHelloWorldServiceManager {
 
     event AuditTaskCreated(
         uint32 indexed taskIndex, 
