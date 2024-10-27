@@ -182,13 +182,13 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
             "Operator has already responded to the task"
         );
 
-        // The message that was signed
-        bytes32 messageHash = keccak256(abi.encode(approved));
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
-        if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
-            revert();
-        }
+        // // The message that was signed
+        // bytes32 messageHash = keccak256(abi.encode(approved));
+        // bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        // bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
+        // if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
+        //     revert();
+        // }
 
 
         
@@ -240,23 +240,23 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         // Mark as verified
         hasVerified[referenceTaskIndex][msg.sender] = true;
 
-         // Verify signature
-        bytes32 taskHash = keccak256(abi.encode(task));
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(taskHash, operator, approval)
-        );
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
+        //  // Verify signature
+        // bytes32 taskHash = keccak256(abi.encode(task));
+        // bytes32 messageHash = keccak256(
+        //     abi.encodePacked(taskHash, operator, approval)
+        // );
+        // bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        // bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
 
-        if (
-            magicValue !=
-            ECDSAStakeRegistry(stakeRegistry).isValidSignature(
-                ethSignedMessageHash,
-                signature
-            )
-        ) {
-            revert("Invalid signature");
-        }
+        // if (
+        //     magicValue !=
+        //     ECDSAStakeRegistry(stakeRegistry).isValidSignature(
+        //         ethSignedMessageHash,
+        //         signature
+        //     )
+        // ) {
+        //     revert("Invalid signature");
+        // }
 
         // Update approval or disapproval count
         if (approval) {
