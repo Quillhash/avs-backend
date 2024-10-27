@@ -129,7 +129,7 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         uint32 referenceTaskIndex,
         bytes memory signature
     ) onlyOperator() external {
-
+        
         //checks whether the task provided by the operator was actually created within the network
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],

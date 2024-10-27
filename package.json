@@ -1,0 +1,16 @@
+{
+  "name": "avs-backend",
+  "version": "1.0.0",
+  "description": "QuillShield Provides Cryptoeconomically secured AI Powered Audits with a Premium Insurance Coverage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4"
+  }
+}
