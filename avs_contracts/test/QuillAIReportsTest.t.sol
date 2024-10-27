@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "../src/QuillAIReports.sol";
-import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract QuillAIReportsTest is Test {
     QuillAIReports reports;

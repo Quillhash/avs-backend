@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import "../src/QuillInsurance.sol";
 import "../src/QuillToken.sol";
 import "../src/QuillAIReports.sol";
-import "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract QuillInsuranceTest is Test {
     QuillToken quillToken;
