@@ -7,4 +7,7 @@ contract QuillToken is ERC20 {
     constructor(uint256 initialSupply) ERC20("QuillToken", "QT") {
         _mint(msg.sender, initialSupply);
     }
+    function mint(address account, uint256 amount) public {
+        _mint(account, amount);
+    }
 }

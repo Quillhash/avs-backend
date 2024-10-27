@@ -105,13 +105,20 @@ contract QuillAIReportsTest is Test {
 
         // nonAuditor tries to submit an audit report
         vm.startPrank(nonAuditor);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AccessControlUnauthorizedAccount.selector,
-                nonAuditor,
-                reports.AUDITOR_ROLE()
+
+        // Construct the expected error message
+        string memory expectedError = string(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(nonAuditor),
+                " is missing role ",
+                Strings.toHexString(uint256(reports.AUDITOR_ROLE()), 32)
             )
         );
+
+        // Expect the revert with the constructed error message
+        vm.expectRevert(bytes(expectedError));
+
         reports.submitAuditReport(submissionId, "QmTestHash", 50);
         vm.stopPrank();
     }
@@ -168,13 +175,20 @@ contract QuillAIReportsTest is Test {
     function testOnlyAdminCanAddAuditor() public {
         // non-admin tries to add auditor2
         vm.startPrank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AccessControlUnauthorizedAccount.selector,
-                user1,
-                reports.DEFAULT_ADMIN_ROLE()
+
+        // Construct the expected error message
+        string memory expectedError = string(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(user1),
+                " is missing role ",
+                Strings.toHexString(uint256(reports.DEFAULT_ADMIN_ROLE()), 32)
             )
         );
+
+        // Expect the revert with the constructed error message
+        vm.expectRevert(bytes(expectedError));
+
         reports.addAuditor(auditor2);
         vm.stopPrank();
     }
@@ -182,13 +196,20 @@ contract QuillAIReportsTest is Test {
     function testOnlyAdminCanRemoveAuditor() public {
         // non-admin tries to remove auditor1
         vm.startPrank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AccessControlUnauthorizedAccount.selector,
-                user1,
-                reports.DEFAULT_ADMIN_ROLE()
+
+        // Construct the expected error message
+        string memory expectedError = string(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(user1),
+                " is missing role ",
+                Strings.toHexString(uint256(reports.DEFAULT_ADMIN_ROLE()), 32)
             )
         );
+
+        // Expect the revert with the constructed error message
+        vm.expectRevert(bytes(expectedError));
+
         reports.removeAuditor(auditor1);
         vm.stopPrank();
     }

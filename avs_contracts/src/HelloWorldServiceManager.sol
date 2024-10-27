@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import {ECDSAServiceManagerBase} from
-    "@eigenlayer-middleware/src/unaudited/ECDSAServiceManagerBase.sol";
+import {ECDSAServiceManagerBase} from "@eigenlayer-middleware/src/unaudited/ECDSAServiceManagerBase.sol";
 import {ECDSAStakeRegistry} from "@eigenlayer-middleware/src/unaudited/ECDSAStakeRegistry.sol";
 import {IServiceManager} from "@eigenlayer-middleware/src/interfaces/IServiceManager.sol";
-import {ECDSAUpgradeable} from
-    "@openzeppelin-upgrades/contracts/utils/cryptography/ECDSAUpgradeable.sol";
+import {ECDSAUpgradeable} from "@openzeppelin-upgrades/contracts/utils/cryptography/ECDSAUpgradeable.sol";
 import {IERC1271Upgradeable} from "@openzeppelin-upgrades/contracts/interfaces/IERC1271Upgradeable.sol";
 
-import {IHelloWorldServiceManager} from "./IHelloWorldServiceManager.sol";
+import {IHelloWorldServiceManager} from "./interfaces/IHelloWorldServiceManager.sol";
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@eigenlayer/contracts/interfaces/IRewardsCoordinator.sol";
@@ -19,41 +17,33 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
  * @title Primary entrypoint for procuring services from HelloWorld.
  * @author Eigen Labs, Inc.
  */
-contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldServiceManager {
-
-
+contract HelloWorldServiceManager is
+    ECDSAServiceManagerBase,
+    IHelloWorldServiceManager
+{
     using ECDSAUpgradeable for bytes32;
 
     uint32 public latestTaskNum;
 
-
-    
     // mapping of task indices to all tasks hashes
     // when a task is created, task hash is stored here,
     // and responses need to pass the actual task,
 
-    
     // which is hashed onchain and checked against this mapping
     mapping(uint32 => bytes32) public allTaskHashes; // taskIndex => taskHash
-
-
 
     // Mapping of task indices to the operator's response (signature)
     mapping(uint32 => bytes) public allTaskResponses; // taskIndex => response (signature)
 
-
     // maps user addresses to contract address to the ipfs hash of audits
     mapping(address => mapping(address => string)) public userAudits;
-
 
     // Mapping of task indices to the audit report's IPFS hash
     mapping(uint32 => string) public auditReports; // taskIndex => IPFS hash
 
-
     // Approval and disapproval counts per task index
     mapping(uint32 => uint256) public approvals; // taskIndex => approval count
     mapping(uint32 => uint256) public disapprovals; // taskIndex => disapproval count
-
 
     // Tracks if a verifier has already verified a task
     mapping(uint32 => mapping(address => bool)) public hasVerified; // taskIndex => verifier => bool
@@ -71,7 +61,6 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         address _stakeRegistry,
         address _rewardsCoordinator,
         address _delegationManager
-
     )
         ECDSAServiceManagerBase(
             _avsDirectory,
@@ -102,7 +91,6 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         return auditTask;
     }
 
-
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId
     function createNewInsuranceTask(
@@ -121,15 +109,13 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
 
         return insuranceTask;
     }
-    
 
     function respondToAuditTask(
         Task calldata task,
         string memory ipfs,
         uint32 referenceTaskIndex,
         bytes memory signature
-    ) onlyOperator() external {
-
+    ) external onlyOperator {
         //checks whether the task provided by the operator was actually created within the network
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
@@ -146,11 +132,15 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         bytes32 messageHash = keccak256(abi.encode(ipfs));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
-        if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
+        if (
+            !(magicValue ==
+                ECDSAStakeRegistry(stakeRegistry).isValidSignature(
+                    ethSignedMessageHash,
+                    signature
+                ))
+        ) {
             revert();
         }
-
-
 
         // Store the operator's response (signature)
         allTaskResponses[referenceTaskIndex] = signature;
@@ -158,20 +148,16 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         //store the ipfs hash of the audit report associated with task
         auditReports[referenceTaskIndex] = ipfs;
 
-
         // emitting event
         emit AuditTaskResponded(referenceTaskIndex, task, msg.sender, ipfs);
     }
-
-
-
 
     function respondToInsuranceTask(
         Task calldata task,
         uint32 referenceTaskIndex,
         bytes memory signature,
         bool approved
-    ) onlyOperator() external {
+    ) external onlyOperator {
         // check that the task is valid, hasn't been responsed yet, and is being responded in time
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
@@ -190,25 +176,22 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         //     revert();
         // }
 
-
-        
         // updating the storage with task responses
         allTaskResponses[referenceTaskIndex] = signature;
 
-
-        if(approved){
+        if (approved) {
             //logic for release of tokens
         }
 
-
-       emit InsuranceTaskResponded(referenceTaskIndex, task, msg.sender, approved);
+        emit InsuranceTaskResponded(
+            referenceTaskIndex,
+            task,
+            msg.sender,
+            approved
+        );
         // emitting event
         //emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
     }
-
-
-
-
 
     function verifyAuditReport(
         Task calldata task,
@@ -216,13 +199,11 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         address operator,
         bool approval,
         bytes memory signature
-    ) external onlyOperator() {
-
+    ) external onlyOperator {
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
             "supplied task does not match the one recorded in the contract"
         );
-
 
         // Check if the operator has responded to this task
         require(
@@ -235,7 +216,6 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
             !hasVerified[referenceTaskIndex][msg.sender],
             "Already verified"
         );
-
 
         // Mark as verified
         hasVerified[referenceTaskIndex][msg.sender] = true;
@@ -273,32 +253,25 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
             msg.sender,
             approval
         );
-
     }
 
     // Getter functions for approvals and disapprovals per task index (per audit report)
-    function getApprovalCount(uint32 taskIndex)
-        external
-        view
-        returns (uint256)
-    {
+    function getApprovalCount(
+        uint32 taskIndex
+    ) external view returns (uint256) {
         return approvals[taskIndex];
     }
 
-    function getDisapprovalCount(uint32 taskIndex)
-        external
-        view
-        returns (uint256)
-    {
+    function getDisapprovalCount(
+        uint32 taskIndex
+    ) external view returns (uint256) {
         return disapprovals[taskIndex];
     }
 
     // Function to get the audit report (IPFS hash) for a task index
-    function getAuditReport(uint32 taskIndex)
-        external
-        view
-        returns (string memory)
-    {
+    function getAuditReport(
+        uint32 taskIndex
+    ) external view returns (string memory) {
         return auditReports[taskIndex];
     }
 }
