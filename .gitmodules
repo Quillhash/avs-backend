@@ -4,3 +4,6 @@
 [submodule "avs_contracts/lib/eigenlayer-middleware"]
 	path = avs_contracts/lib/eigenlayer-middleware
 	url = https://github.com/Layr-Labs/eigenlayer-middleware
+[submodule "avs_contracts/lib/openzeppelin-contracts"]
+	path = avs_contracts/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
