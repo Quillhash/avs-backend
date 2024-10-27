@@ -12,6 +12,7 @@ import {IHelloWorldServiceManager} from "./interfaces/IHelloWorldServiceManager.
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@eigenlayer/contracts/interfaces/IRewardsCoordinator.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {QuillInsurance} from "./QuillInsurance.sol";
 
 /**
  * @title Primary entrypoint for procuring services from HelloWorld.
@@ -19,6 +20,7 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
  */
 contract HelloWorldServiceManager is
     ECDSAServiceManagerBase,
+    QuillInsurance,
     IHelloWorldServiceManager
 {
     using ECDSAUpgradeable for bytes32;
@@ -39,7 +41,7 @@ contract HelloWorldServiceManager is
     mapping(address => mapping(address => string)) public userAudits;
 
     // Mapping of task indices to the audit report's IPFS hash
-    mapping(uint32 => string) public auditReports; // taskIndex => IPFS hash
+    mapping(uint32 => string) public indexToAuditReports; // taskIndex => IPFS hash
 
     // Approval and disapproval counts per task index
     mapping(uint32 => uint256) public approvals; // taskIndex => approval count
@@ -75,6 +77,7 @@ contract HelloWorldServiceManager is
     function createNewAuditTask(
         address contractAddress
     ) external returns (Task memory) {
+        submitContract(contractAddress, false);
         // create a new task struct
         Task memory auditTask;
         auditTask.contractAddress = contractAddress;
@@ -94,8 +97,13 @@ contract HelloWorldServiceManager is
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId
     function createNewInsuranceTask(
-        address contractAddress
+        // address contractAddress
+        uint256 _submissionId,
+        uint256 _coverageAmount,
+        uint256 _duration
     ) external returns (Task memory) {
+        address contractAddress = getSubmission(_submissionId).contractAddress;
+        createPolicy(_submissionId, _coverageAmount, _duration);
         // create a new task struct
         Task memory insuranceTask;
         insuranceTask.contractAddress = contractAddress;
@@ -103,9 +111,13 @@ contract HelloWorldServiceManager is
         insuranceTask.createdBy = msg.sender;
 
         // store hash of task onchain, emit event, and increase taskNum
-        allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
-        emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
-        latestTaskNum += 1;
+        // allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
+        allTaskHashes[uint32(_submissionId)] = keccak256(
+            abi.encode(insuranceTask)
+        );
+        // emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
+        emit InsuranceTaskCreated(uint32(_submissionId), insuranceTask);
+        // latestTaskNum += 1;
 
         return insuranceTask;
     }
@@ -114,7 +126,8 @@ contract HelloWorldServiceManager is
         Task calldata task,
         string memory ipfs,
         uint32 referenceTaskIndex,
-        bytes memory signature
+        bytes memory signature,
+        uint8 riskScore
     ) external onlyOperator {
         //checks whether the task provided by the operator was actually created within the network
         require(
@@ -141,12 +154,12 @@ contract HelloWorldServiceManager is
         ) {
             revert();
         }
-
+        submitAuditReport(uint256(referenceTaskIndex), ipfs, riskScore);
         // Store the operator's response (signature)
         allTaskResponses[referenceTaskIndex] = signature;
 
         //store the ipfs hash of the audit report associated with task
-        auditReports[referenceTaskIndex] = ipfs;
+        indexToAuditReports[referenceTaskIndex] = ipfs;
 
         // emitting event
         emit AuditTaskResponded(referenceTaskIndex, task, msg.sender, ipfs);
@@ -179,8 +192,12 @@ contract HelloWorldServiceManager is
         // updating the storage with task responses
         allTaskResponses[referenceTaskIndex] = signature;
 
-        if (approved) {
+        if (!approved) {
+            uint256 premium = getPolicy(uint256(referenceTaskIndex))
+                .premiumAmount;
+            address owner = getPolicy(uint256(referenceTaskIndex)).owner;
             //logic for release of tokens
+            quillToken.transfer(owner, premium);
         }
 
         emit InsuranceTaskResponded(
@@ -207,7 +224,7 @@ contract HelloWorldServiceManager is
 
         // Check if the operator has responded to this task
         require(
-            bytes(auditReports[referenceTaskIndex]).length != 0,
+            bytes(indexToAuditReports[referenceTaskIndex]).length != 0,
             "Operator has not responded"
         );
 
@@ -272,6 +289,6 @@ contract HelloWorldServiceManager is
     function getAuditReport(
         uint32 taskIndex
     ) external view returns (string memory) {
-        return auditReports[taskIndex];
+        return indexToAuditReports[taskIndex];
     }
 }

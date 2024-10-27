@@ -2,18 +2,14 @@
 pragma solidity 0.8.26;
 
 // Importing OpenZeppelin's ERC20 interface and SafeERC20 library
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import {IQuillAIReports} from "./interfaces/IQuillAIReports.sol";
-import {IQuillToken} from "./interfaces/IQuillToken.sol";
+// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+// import "@openzeppelin/contracts/access/AccessControl.sol";
+import {QuillAIReports} from "./QuillAIReports.sol";
 
-contract QuillInsurance is AccessControl {
-    using SafeERC20 for IERC20;
+contract QuillInsurance is QuillAIReports {
+    // using SafeERC20 for IERC20;
 
-    bytes32 public constant INSURER_ROLE = keccak256("INSURER_ROLE");
-
-    IQuillToken public quillToken;
-    IQuillAIReports public quillAIReports;
+    // bytes32 public constant INSURER_ROLE = keccak256("INSURER_ROLE");
 
     uint256 public policyCounter;
 
@@ -84,11 +80,10 @@ contract QuillInsurance is AccessControl {
         uint256 payoutAmount
     );
 
-    constructor(address _quillTokenAddress, address _quillAIReportsAddress) {
-        quillToken = IQuillToken(_quillTokenAddress);
-        quillAIReports = IQuillAIReports(_quillAIReportsAddress);
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(INSURER_ROLE, msg.sender);
+    constructor() {
+        // quillToken = IQuillToken(_quillTokenAddress);
+        // _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // _grantRole(INSURER_ROLE, msg.sender);
     }
 
     /**
@@ -101,11 +96,9 @@ contract QuillInsurance is AccessControl {
         uint256 _submissionId,
         uint256 _coverageAmount,
         uint256 _duration
-    ) public {
+    ) internal {
         // Retrieve audit report
-        uint8 riskScore = quillAIReports
-            .getAuditReport(_submissionId)
-            .riskScore;
+        uint8 riskScore = getAuditReport(_submissionId).riskScore;
 
         // Calculate premium
         uint256 premiumAmount = calculatePremium(
@@ -222,10 +215,8 @@ contract QuillInsurance is AccessControl {
      * @param _claimId ID of the claim.
      * @param _approved Whether the claim is approved or not.
      */
-    function processClaim(
-        uint256 _claimId,
-        bool _approved
-    ) public onlyRole(INSURER_ROLE) {
+    function processClaim(uint256 _claimId, bool _approved) public {
+        require(claimApprove[_claimId], "Claim is not approved");
         Claim storage claim = claims[_claimId];
         Policy storage policy = policies[claim.policyId];
 
@@ -255,7 +246,7 @@ contract QuillInsurance is AccessControl {
     function updatePolicyStatus(
         uint256 _policyId,
         PolicyStatus _status
-    ) public onlyRole(INSURER_ROLE) {
+    ) internal {
         Policy storage policy = policies[_policyId];
         policy.status = _status;
     }
@@ -273,21 +264,21 @@ contract QuillInsurance is AccessControl {
         return claims[claimId];
     }
 
-    /**
-     * @dev Assigns the INSURER_ROLE to an address.
-     * @param _insurer Address to be assigned as an insurer.
-     */
-    function addInsurer(address _insurer) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        grantRole(INSURER_ROLE, _insurer);
-    }
+    // /**
+    //  * @dev Assigns the INSURER_ROLE to an address.
+    //  * @param _insurer Address to be assigned as an insurer.
+    //  */
+    // function addInsurer(address _insurer) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     grantRole(INSURER_ROLE, _insurer);
+    // }
 
-    /**
-     * @dev Revokes the INSURER_ROLE from an address.
-     * @param _insurer Address to be revoked as an insurer.
-     */
-    function removeInsurer(
-        address _insurer
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        revokeRole(INSURER_ROLE, _insurer);
-    }
+    // /**
+    //  * @dev Revokes the INSURER_ROLE from an address.
+    //  * @param _insurer Address to be revoked as an insurer.
+    //  */
+    // function removeInsurer(
+    //     address _insurer
+    // ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     revokeRole(INSURER_ROLE, _insurer);
+    // }
 }

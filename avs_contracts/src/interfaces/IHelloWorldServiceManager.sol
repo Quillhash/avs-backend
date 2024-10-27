@@ -2,28 +2,20 @@
 pragma solidity ^0.8.9;
 
 interface IHelloWorldServiceManager {
-
-    event AuditTaskCreated(
-        uint32 indexed taskIndex, 
-        Task task
-    );
+    event AuditTaskCreated(uint32 indexed taskIndex, Task task);
 
     event AuditTaskResponded(
-        uint32 indexed taskIndex, 
-        Task task, 
-        address operator, 
+        uint32 indexed taskIndex,
+        Task task,
+        address operator,
         string ipfs
     );
 
-
-    event InsuranceTaskCreated(
-        uint32 indexed taskIndex, 
-        Task task
-    );
+    event InsuranceTaskCreated(uint32 indexed taskIndex, Task task);
 
     event InsuranceTaskResponded(
-        uint32 indexed taskIndex, 
-        Task task, 
+        uint32 indexed taskIndex,
+        Task task,
         address operator,
         bool approved
     );
@@ -47,14 +39,18 @@ interface IHelloWorldServiceManager {
     ) external returns (Task memory);
 
     function createNewInsuranceTask(
-        address contractAddress
+        // address contractAddress
+        uint256 _submissionId,
+        uint256 _coverageAmount,
+        uint256 _duration
     ) external returns (Task memory);
 
     function respondToAuditTask(
         Task calldata task,
         string memory ipfs,
         uint32 referenceTaskIndex,
-        bytes memory signature
+        bytes memory signature,
+        uint8 riskScore
     ) external;
 
     function respondToInsuranceTask(

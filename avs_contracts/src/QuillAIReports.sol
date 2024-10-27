@@ -2,11 +2,12 @@
 pragma solidity 0.8.26;
 
 // Importing OpenZeppelin's AccessControl for role management
-import "@openzeppelin/contracts/access/AccessControl.sol";
+// import "@openzeppelin/contracts/access/AccessControl.sol";
+import {IQuillToken} from "./interfaces/IQuillToken.sol";
+import {ClaimApproval} from "./ClaimApproval.sol";
+import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 
-contract QuillAIReports is AccessControl {
-    bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
-
+contract QuillAIReports is Initializable, ClaimApproval {
     struct Submission {
         address owner;
         address contractAddress;
@@ -20,13 +21,15 @@ contract QuillAIReports is AccessControl {
         uint8 riskScore; // Risk score between 0-100
         uint256 timestamp;
     }
+    IQuillToken public quillToken;
+    address public quillTokenSetter;
 
     // Mapping from submission ID to Submission details
     mapping(uint256 => Submission) public submissions;
 
     // Mapping from submission ID to AuditReport
     mapping(uint256 => AuditReport) public auditReports;
-
+    mapping(address => uint256[]) public userToReportsNum;
     uint256 public submissionCounter;
 
     event ContractSubmitted(
@@ -44,9 +47,25 @@ contract QuillAIReports is AccessControl {
         uint256 timestamp
     );
 
-    constructor() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(AUDITOR_ROLE, msg.sender);
+    constructor() {}
+
+    /**
+     * @dev Initializes the contract with a list of owners and the number of required approvals.
+     * @param _owners The addresses of the owners.
+     * @param _requiredApprovals The number of approvals required to approve a claim.
+     * @param _quillTokenAddress addresss of quill token
+     */
+    function initialize(
+        address[] memory _owners,
+        uint256 _requiredApprovals,
+        address _quillTokenAddress
+    ) public initializer {
+        quillToken = IQuillToken(_quillTokenAddress);
+        owners = _owners;
+        requiredApprovals = _requiredApprovals;
+        for (uint256 i = 0; i < _owners.length; i++) {
+            isOwner[_owners[i]] = true;
+        }
     }
 
     /**
@@ -57,8 +76,10 @@ contract QuillAIReports is AccessControl {
     function submitContract(
         address _contractAddress,
         bool _proxyContract
-    ) public {
+    ) internal {
+        quillToken.transferFrom(msg.sender, address(this), 100 ether);
         submissionCounter++;
+        userToReportsNum[msg.sender].push(submissionCounter);
         submissions[submissionCounter] = Submission({
             owner: msg.sender,
             contractAddress: _contractAddress,
@@ -86,7 +107,7 @@ contract QuillAIReports is AccessControl {
         uint256 _submissionId,
         string memory _reportIPFSHash,
         uint8 _riskScore
-    ) public onlyRole(AUDITOR_ROLE) {
+    ) internal {
         require(
             submissions[_submissionId].owner != address(0),
             "Invalid submission ID"
@@ -132,22 +153,27 @@ contract QuillAIReports is AccessControl {
     ) public view returns (Submission memory) {
         return submissions[_submissionId];
     }
-
-    /**
-     * @dev Assigns the AUDITOR_ROLE to an address.
-     * @param _auditor Address to be assigned as an auditor.
-     */
-    function addAuditor(address _auditor) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        grantRole(AUDITOR_ROLE, _auditor);
+    function getUserSubmissions(
+        address userAddress
+    ) public view returns (uint256[] memory) {
+        return userToReportsNum[userAddress];
     }
 
-    /**
-     * @dev Revokes the AUDITOR_ROLE from an address.
-     * @param _auditor Address to be revoked as an auditor.
-     */
-    function removeAuditor(
-        address _auditor
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        revokeRole(AUDITOR_ROLE, _auditor);
-    }
+    // /**
+    //  * @dev Assigns the AUDITOR_ROLE to an address.
+    //  * @param _auditor Address to be assigned as an auditor.
+    //  */
+    // function addAuditor(address _auditor) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     grantRole(AUDITOR_ROLE, _auditor);
+    // }
+
+    // /**
+    //  * @dev Revokes the AUDITOR_ROLE from an address.
+    //  * @param _auditor Address to be revoked as an auditor.
+    //  */
+    // function removeAuditor(
+    //     address _auditor
+    // ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     revokeRole(AUDITOR_ROLE, _auditor);
+    // }
 }
