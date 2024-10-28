@@ -143,7 +143,7 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         );
 
         // checks whether the signature made on the ipfs is correct, by checking the signature on the hash of ipfs string provided by operator
-        bytes32 messageHash = keccak256(abi.encode(ipfs));
+        bytes32 messageHash = keccak256(abi.encodePacked(ipfs));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
         if (!(magicValue == ECDSAStakeRegistry(stakeRegistry).isValidSignature(ethSignedMessageHash,signature))){
@@ -213,10 +213,8 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
     function verifyAuditReport(
         Task calldata task,
         uint32 referenceTaskIndex,
-        address operator,
-        bool approval,
-        bytes memory signature
-    ) external onlyOperator() {
+        bool approval
+    ) onlyOperator() external {
 
         require(
             keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
@@ -240,24 +238,6 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         // Mark as verified
         hasVerified[referenceTaskIndex][msg.sender] = true;
 
-        //  // Verify signature
-        // bytes32 taskHash = keccak256(abi.encode(task));
-        // bytes32 messageHash = keccak256(
-        //     abi.encodePacked(taskHash, operator, approval)
-        // );
-        // bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        // bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
-
-        // if (
-        //     magicValue !=
-        //     ECDSAStakeRegistry(stakeRegistry).isValidSignature(
-        //         ethSignedMessageHash,
-        //         signature
-        //     )
-        // ) {
-        //     revert("Invalid signature");
-        // }
-
         // Update approval or disapproval count
         if (approval) {
             approvals[referenceTaskIndex] += 1;
@@ -269,7 +249,6 @@ contract HelloWorldServiceManager is ECDSAServiceManagerBase, IHelloWorldService
         emit AuditReportVerified(
             referenceTaskIndex,
             task.contractAddress,
-            operator,
             msg.sender,
             approval
         );

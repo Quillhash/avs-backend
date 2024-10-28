@@ -42,14 +42,11 @@ const ecdsaRegistryContract = new ethers.Contract(ecdsaStakeRegistryAddress, ecd
 const avsDirectory = new ethers.Contract(avsDirectoryAddress, avsDirectoryABI, wallet);
 
 
-const signAndRespondToTask = async (taskIndex: number, blockNumber: number, address: string, ipfs: string, createdBy: string) => {
+const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string) => {
     try {
-        
-    const messageHash = ethers.solidityPackedKeccak256(["string"], [address]);
+    const messageHash = ethers.solidityPackedKeccak256(["string"], [ipfs]);
     const messageBytes = ethers.getBytes(messageHash);
     const signature = await wallet.signMessage(messageBytes);
-
-    console.log(`Signing and responding to task ${taskIndex}`);
 
     const operators = [await wallet.getAddress()];
     const signatures = [signature];
@@ -57,21 +54,37 @@ const signAndRespondToTask = async (taskIndex: number, blockNumber: number, addr
         ["address[]", "bytes[]", "uint32"],
         [operators, signatures, ethers.toBigInt(await provider.getBlockNumber())]
     );
-    console.log({ contractAddress: address , taskCreatedBlock: blockNumber, createdBy },
-        ipfs,
-        taskIndex,
-        signedTask,'--------------------');
-    
 
     const tx = await helloWorldServiceManager.respondToAuditTask(
-        { contractAddress: address , taskCreatedBlock: blockNumber, createdBy },
+        {
+            contractAddress: task[0],
+            taskCreatedBlock: task[1],
+            createdBy: task[2]
+        },
         ipfs,
         taskIndex,
         signedTask
     );
     await tx.wait();
     } catch (e: any) {
-        console.log(e);        
+        throw new Error(e.message);
+    }
+};
+
+const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, approval: boolean) => {
+    try {
+
+    const tx = await helloWorldServiceManager.verifyAuditReport(
+        {
+            contractAddress: task[0],
+            taskCreatedBlock: task[1],
+            createdBy: task[2]
+        },
+        taskIndex,
+        approval
+    );
+    await tx.wait();
+    } catch (e: any) {
         throw new Error(e.message);
     }
     // console.log(`Responded to task.`);
@@ -133,8 +146,6 @@ const registerOperator = async () => {
 };
 
 const monitorNewTasks = async () => {
-    //console.log(`Creating new task "EigenWorld"`);
-    //await helloWorldServiceManager.createNewTask("EigenWorld");
     
     helloWorldServiceManager.on("AuditTaskCreated", async (taskIndex: number, task: any) => {
             try {
@@ -144,7 +155,7 @@ const monitorNewTasks = async () => {
                 "pinata_api_key": `${process.env.PINATA_CLOUD_API_KEY}`,
                 "pinata_secret_api_key": `${process.env.PINATA_CLOUD_SECRET_KEY}`,
             },);
-            await signAndRespondToTask(taskIndex, task[1], task[0], ipfsUrl.IpfsHash, task[2]);
+            await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash);
             
         } catch (e) {
             console.log(e);
@@ -155,15 +166,39 @@ const monitorNewTasks = async () => {
     console.log("Monitoring for new tasks...");
 };
 
+const monitorVerifyAuditReport = async () => {
+    
+    helloWorldServiceManager.on("AuditTaskResponded", async (taskIndex: number, task: any, createdBy: string, ipfs: string) => {
+            try {
+            console.log(`Verify Audit Report Task Detected -->> `, taskIndex, task, createdBy, ipfs);
+            const reAudit = await apiCallHelper.apiCall(`${process.env.AUDIT_AGENT_URL}?address=${task[0]}`, 'GET');
+            
+            // ToDo: approval logic to verify old ipfs report with new ipfs report
+
+            const approval = true;
+            
+            await signAndRespondToVerifyAuditReport(taskIndex, task, approval);
+            console.log('Verify Audit Report Responded');
+            
+        } catch (e) {
+            console.log(e);
+            
+        }
+    });
+
+    console.log("Monitoring for Verify Audit Tasks...");
+};
+
 const main = async () => {
     // await registerOperator();
     monitorNewTasks().catch((error) => {
         console.error("Error monitoring tasks:", error);
     });
-};
+    monitorVerifyAuditReport().catch((error) => {
+        console.error("Error monitoring Verify Audit Tasks:", error);
+    });
+ };
 
 main().catch((error) => {
     console.error("Error in main function:", error);
 });
-
-// signAndRespondToTask(1, 323232, '0x7CBb95D1E1AB0740cD54726c4aad266e1aF2083b')
