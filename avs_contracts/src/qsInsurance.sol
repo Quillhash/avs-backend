@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.26 ;
-//   ____          _  _  _             _____   _   _        _                           _    
-//  / __ \        (_)| || |     /\    |_   _| | \ | |      | |                         | |   
+pragma solidity 0.8.26;
+
+//   ____          _  _  _             _____   _   _        _                           _
+//  / __ \        (_)| || |     /\    |_   _| | \ | |      | |                         | |
 // | |  | | _   _  _ | || |    /  \     | |   |  \| |  ___ | |_ __      __  ___   _ __ | | __
 // | |  | || | | || || || |   / /\ \    | |   | . ` | / _ \| __|\ \ /\ / / / _ \ | '__|| |/ /
-// | |__| || |_| || || || |  / ____ \  _| |_  | |\  ||  __/| |_  \ V  V / | (_) || |   |   < 
+// | |__| || |_| || || || |  / ____ \  _| |_  | |\  ||  __/| |_  \ V  V / | (_) || |   |   <
 //  \___\_\ \__,_||_||_||_| /_/    \_\|_____| |_| \_| \___| \__|  \_/\_/   \___/ |_|   |_|\_\
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#**#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-..+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -35,6 +36,7 @@ pragma solidity 0.8.26 ;
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%#+=:.    :+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*+=:. :=*%@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#*++*#@@@@@@@@@@@@@@@@@@@@@
+
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol
 
 // OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC1822.sol)
@@ -5483,7 +5485,7 @@ contract QuillInsurance is QuillAIReports {
      * @dev Allows the policy owner to pay the premium and activate the policy.
      * @param _policyId ID of the policy to activate.
      */
-    function payPremium(uint256 _policyId) public {
+    function payPremium(uint256 _policyId) internal {
         Policy storage policy = policies[_policyId];
         require(
             msg.sender == policy.owner,
@@ -5561,9 +5563,8 @@ contract QuillInsurance is QuillAIReports {
     /**
      * @dev Allows the insurer to process a claim.
      * @param _claimId ID of the claim.
-     * @param _approved Whether the claim is approved or not.
      */
-    function processClaim(uint256 _claimId, bool _approved) public {
+    function processClaim(uint256 _claimId) public {
         require(claimApprove[_claimId], "Claim is not approved");
         Claim storage claim = claims[_claimId];
         Policy storage policy = policies[claim.policyId];
@@ -5571,9 +5572,9 @@ contract QuillInsurance is QuillAIReports {
         require(!claim.processed, "Claim already processed");
 
         claim.processed = true;
-        claim.approved = _approved;
+        claim.approved = true;
 
-        if (_approved) {
+        if (true) {
             policy.status = PolicyStatus.ClaimApproved;
             // Payout the coverage amount to the policy owner
             quillToken.transfer(policy.owner, policy.coverageAmount);
@@ -5583,7 +5584,7 @@ contract QuillInsurance is QuillAIReports {
             policy.status = PolicyStatus.ClaimDenied;
         }
 
-        emit ClaimProcessed(_claimId, claim.policyId, _approved);
+        emit ClaimProcessed(_claimId, claim.policyId, true);
     }
 
     /**
