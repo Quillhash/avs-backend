@@ -1,6 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity =0.8.26 >=0.5.0 ^0.8.0 ^0.8.1 ^0.8.12 ^0.8.2 ^0.8.9;
+pragma solidity 0.8.26 ;
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#**#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-..+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*=.   =%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@#=.    :#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@#-      :#@@@@@@@@@@@%#+=--------==+*%@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@+.      .*@@@@@@@@@@@@@@@@@@@-.          .-+%@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@+        :%@@@@@@@@@@@@@@@@@@@@@@#-            :*@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@#.        :@@@@@@@@@@@@@@@@@@@@@@@@@@*             .#@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@=          #@@@@@@@@@@@@@@@@@@@@@@@@@@@=              #@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@+          :@@@@@@@@@@@@@@@@@@@@@@@@@@@@#               %@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@%           -@@@@%@@@@@@@@@@@@@@@@@%@@@@@*               -@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@=           :@@@@+.---------------:=@@@@@-                @@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@:            %@@@+                 =@@@@#                 @@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@-            -@@@+:+++++++++++++++-=@@@%.                =@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@*             =@@@@@@@@@@@@@@@@@@@@@@@%.                -@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@:             -@@@@@@@@@@@@@@@@@@@@@#                 =@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@%.             .%@@@@@@@@@@@@@@@@@@+                .#@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@=              =@@@@@@@@@@@@@@@%:               .*@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@#:             .+@@@@@@@@@@@@+               =#@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@#:             .+@@@@@@@@#.             -#@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@#-             .+@@@@%-           :+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@*-             -*-        :=+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#=:              .:=*%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*=:          .=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-.         -*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-:       :=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%#+=:.    :+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*+=:. :=*%@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#*++*#@@@@@@@@@@@@@@@@@@@@@
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol
 
 // OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC1822.sol)
@@ -50,7 +79,14 @@ abstract contract Proxy {
 
             // Call the implementation.
             // out and outsize are 0 because we don't know the size yet.
-            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)
+            let result := delegatecall(
+                gas(),
+                implementation,
+                0,
+                calldatasize(),
+                0,
+                0
+            )
 
             // Copy the returned data.
             returndatacopy(0, 0, returndatasize())
@@ -143,7 +179,11 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     /**
      * @dev Returns the amount of tokens in existence.
@@ -171,7 +211,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(
+        address owner,
+        address spender
+    ) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -264,10 +307,16 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(
+            address(this).balance >= amount,
+            "Address: insufficient balance"
+        );
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(
+            success,
+            "Address: unable to send value, recipient may have reverted"
+        );
     }
 
     /**
@@ -288,7 +337,10 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+    function functionCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
         return functionCall(target, data, "Address: low-level call failed");
     }
 
@@ -322,7 +374,13 @@ library Address {
         bytes memory data,
         uint256 value
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return
+            functionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value failed"
+            );
     }
 
     /**
@@ -337,10 +395,15 @@ library Address {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
+        require(
+            address(this).balance >= value,
+            "Address: insufficient balance for call"
+        );
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
         return verifyCallResult(success, returndata, errorMessage);
     }
 
@@ -350,8 +413,16 @@ library Address {
      *
      * _Available since v3.3._
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function functionStaticCall(
+        address target,
+        bytes memory data
+    ) internal view returns (bytes memory) {
+        return
+            functionStaticCall(
+                target,
+                data,
+                "Address: low-level static call failed"
+            );
     }
 
     /**
@@ -377,8 +448,16 @@ library Address {
      *
      * _Available since v3.4._
      */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    function functionDelegateCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
+        return
+            functionDelegateCall(
+                target,
+                data,
+                "Address: low-level delegate call failed"
+            );
     }
 
     /**
@@ -477,7 +556,9 @@ library StorageSlot {
     /**
      * @dev Returns an `AddressSlot` with member `value` located at `slot`.
      */
-    function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {
+    function getAddressSlot(
+        bytes32 slot
+    ) internal pure returns (AddressSlot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
@@ -487,7 +568,9 @@ library StorageSlot {
     /**
      * @dev Returns an `BooleanSlot` with member `value` located at `slot`.
      */
-    function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) {
+    function getBooleanSlot(
+        bytes32 slot
+    ) internal pure returns (BooleanSlot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
@@ -497,7 +580,9 @@ library StorageSlot {
     /**
      * @dev Returns an `Bytes32Slot` with member `value` located at `slot`.
      */
-    function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) {
+    function getBytes32Slot(
+        bytes32 slot
+    ) internal pure returns (Bytes32Slot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
@@ -507,7 +592,9 @@ library StorageSlot {
     /**
      * @dev Returns an `Uint256Slot` with member `value` located at `slot`.
      */
-    function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {
+    function getUint256Slot(
+        bytes32 slot
+    ) internal pure returns (Uint256Slot storage r) {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
@@ -570,7 +657,10 @@ library Strings {
     /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
-    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+    function toHexString(
+        uint256 value,
+        uint256 length
+    ) internal pure returns (string memory) {
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
@@ -606,7 +696,10 @@ interface IERC1271Upgradeable {
      * @param hash      Hash of the data to be signed
      * @param signature Signature byte array associated with _data
      */
-    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue);
+    function isValidSignature(
+        bytes32 hash,
+        bytes memory signature
+    ) external view returns (bytes4 magicValue);
 }
 
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol
@@ -668,10 +761,16 @@ library AddressUpgradeable {
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(
+            address(this).balance >= amount,
+            "Address: insufficient balance"
+        );
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(
+            success,
+            "Address: unable to send value, recipient may have reverted"
+        );
     }
 
     /**
@@ -692,7 +791,10 @@ library AddressUpgradeable {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+    function functionCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
         return functionCall(target, data, "Address: low-level call failed");
     }
 
@@ -726,7 +828,13 @@ library AddressUpgradeable {
         bytes memory data,
         uint256 value
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return
+            functionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value failed"
+            );
     }
 
     /**
@@ -741,10 +849,15 @@ library AddressUpgradeable {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
+        require(
+            address(this).balance >= value,
+            "Address: insufficient balance for call"
+        );
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
         return verifyCallResult(success, returndata, errorMessage);
     }
 
@@ -754,8 +867,16 @@ library AddressUpgradeable {
      *
      * _Available since v3.3._
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function functionStaticCall(
+        address target,
+        bytes memory data
+    ) internal view returns (bytes memory) {
+        return
+            functionStaticCall(
+                target,
+                data,
+                "Address: low-level static call failed"
+            );
     }
 
     /**
@@ -859,7 +980,10 @@ library StringsUpgradeable {
     /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
-    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+    function toHexString(
+        uint256 value,
+        uint256 length
+    ) internal pure returns (string memory) {
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
@@ -1096,7 +1220,10 @@ library MathUpgradeable {
     /**
      * @notice Calculates sqrt(a), following the selected rounding direction.
      */
-    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+    function sqrt(
+        uint256 a,
+        Rounding rounding
+    ) internal pure returns (uint256) {
         uint256 result = sqrt(a);
         if (rounding == Rounding.Up && result * result < a) {
             result += 1;
@@ -1138,7 +1265,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint248(uint256 value) internal pure returns (uint248) {
-        require(value <= type(uint248).max, "SafeCast: value doesn't fit in 248 bits");
+        require(
+            value <= type(uint248).max,
+            "SafeCast: value doesn't fit in 248 bits"
+        );
         return uint248(value);
     }
 
@@ -1155,7 +1285,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint240(uint256 value) internal pure returns (uint240) {
-        require(value <= type(uint240).max, "SafeCast: value doesn't fit in 240 bits");
+        require(
+            value <= type(uint240).max,
+            "SafeCast: value doesn't fit in 240 bits"
+        );
         return uint240(value);
     }
 
@@ -1172,7 +1305,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint232(uint256 value) internal pure returns (uint232) {
-        require(value <= type(uint232).max, "SafeCast: value doesn't fit in 232 bits");
+        require(
+            value <= type(uint232).max,
+            "SafeCast: value doesn't fit in 232 bits"
+        );
         return uint232(value);
     }
 
@@ -1189,7 +1325,10 @@ library SafeCastUpgradeable {
      * _Available since v4.2._
      */
     function toUint224(uint256 value) internal pure returns (uint224) {
-        require(value <= type(uint224).max, "SafeCast: value doesn't fit in 224 bits");
+        require(
+            value <= type(uint224).max,
+            "SafeCast: value doesn't fit in 224 bits"
+        );
         return uint224(value);
     }
 
@@ -1206,7 +1345,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint216(uint256 value) internal pure returns (uint216) {
-        require(value <= type(uint216).max, "SafeCast: value doesn't fit in 216 bits");
+        require(
+            value <= type(uint216).max,
+            "SafeCast: value doesn't fit in 216 bits"
+        );
         return uint216(value);
     }
 
@@ -1223,7 +1365,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint208(uint256 value) internal pure returns (uint208) {
-        require(value <= type(uint208).max, "SafeCast: value doesn't fit in 208 bits");
+        require(
+            value <= type(uint208).max,
+            "SafeCast: value doesn't fit in 208 bits"
+        );
         return uint208(value);
     }
 
@@ -1240,7 +1385,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint200(uint256 value) internal pure returns (uint200) {
-        require(value <= type(uint200).max, "SafeCast: value doesn't fit in 200 bits");
+        require(
+            value <= type(uint200).max,
+            "SafeCast: value doesn't fit in 200 bits"
+        );
         return uint200(value);
     }
 
@@ -1257,7 +1405,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint192(uint256 value) internal pure returns (uint192) {
-        require(value <= type(uint192).max, "SafeCast: value doesn't fit in 192 bits");
+        require(
+            value <= type(uint192).max,
+            "SafeCast: value doesn't fit in 192 bits"
+        );
         return uint192(value);
     }
 
@@ -1274,7 +1425,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint184(uint256 value) internal pure returns (uint184) {
-        require(value <= type(uint184).max, "SafeCast: value doesn't fit in 184 bits");
+        require(
+            value <= type(uint184).max,
+            "SafeCast: value doesn't fit in 184 bits"
+        );
         return uint184(value);
     }
 
@@ -1291,7 +1445,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint176(uint256 value) internal pure returns (uint176) {
-        require(value <= type(uint176).max, "SafeCast: value doesn't fit in 176 bits");
+        require(
+            value <= type(uint176).max,
+            "SafeCast: value doesn't fit in 176 bits"
+        );
         return uint176(value);
     }
 
@@ -1308,7 +1465,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint168(uint256 value) internal pure returns (uint168) {
-        require(value <= type(uint168).max, "SafeCast: value doesn't fit in 168 bits");
+        require(
+            value <= type(uint168).max,
+            "SafeCast: value doesn't fit in 168 bits"
+        );
         return uint168(value);
     }
 
@@ -1325,7 +1485,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint160(uint256 value) internal pure returns (uint160) {
-        require(value <= type(uint160).max, "SafeCast: value doesn't fit in 160 bits");
+        require(
+            value <= type(uint160).max,
+            "SafeCast: value doesn't fit in 160 bits"
+        );
         return uint160(value);
     }
 
@@ -1342,7 +1505,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint152(uint256 value) internal pure returns (uint152) {
-        require(value <= type(uint152).max, "SafeCast: value doesn't fit in 152 bits");
+        require(
+            value <= type(uint152).max,
+            "SafeCast: value doesn't fit in 152 bits"
+        );
         return uint152(value);
     }
 
@@ -1359,7 +1525,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint144(uint256 value) internal pure returns (uint144) {
-        require(value <= type(uint144).max, "SafeCast: value doesn't fit in 144 bits");
+        require(
+            value <= type(uint144).max,
+            "SafeCast: value doesn't fit in 144 bits"
+        );
         return uint144(value);
     }
 
@@ -1376,7 +1545,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint136(uint256 value) internal pure returns (uint136) {
-        require(value <= type(uint136).max, "SafeCast: value doesn't fit in 136 bits");
+        require(
+            value <= type(uint136).max,
+            "SafeCast: value doesn't fit in 136 bits"
+        );
         return uint136(value);
     }
 
@@ -1393,7 +1565,10 @@ library SafeCastUpgradeable {
      * _Available since v2.5._
      */
     function toUint128(uint256 value) internal pure returns (uint128) {
-        require(value <= type(uint128).max, "SafeCast: value doesn't fit in 128 bits");
+        require(
+            value <= type(uint128).max,
+            "SafeCast: value doesn't fit in 128 bits"
+        );
         return uint128(value);
     }
 
@@ -1410,7 +1585,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint120(uint256 value) internal pure returns (uint120) {
-        require(value <= type(uint120).max, "SafeCast: value doesn't fit in 120 bits");
+        require(
+            value <= type(uint120).max,
+            "SafeCast: value doesn't fit in 120 bits"
+        );
         return uint120(value);
     }
 
@@ -1427,7 +1605,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint112(uint256 value) internal pure returns (uint112) {
-        require(value <= type(uint112).max, "SafeCast: value doesn't fit in 112 bits");
+        require(
+            value <= type(uint112).max,
+            "SafeCast: value doesn't fit in 112 bits"
+        );
         return uint112(value);
     }
 
@@ -1444,7 +1625,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint104(uint256 value) internal pure returns (uint104) {
-        require(value <= type(uint104).max, "SafeCast: value doesn't fit in 104 bits");
+        require(
+            value <= type(uint104).max,
+            "SafeCast: value doesn't fit in 104 bits"
+        );
         return uint104(value);
     }
 
@@ -1461,7 +1645,10 @@ library SafeCastUpgradeable {
      * _Available since v4.2._
      */
     function toUint96(uint256 value) internal pure returns (uint96) {
-        require(value <= type(uint96).max, "SafeCast: value doesn't fit in 96 bits");
+        require(
+            value <= type(uint96).max,
+            "SafeCast: value doesn't fit in 96 bits"
+        );
         return uint96(value);
     }
 
@@ -1478,7 +1665,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint88(uint256 value) internal pure returns (uint88) {
-        require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
+        require(
+            value <= type(uint88).max,
+            "SafeCast: value doesn't fit in 88 bits"
+        );
         return uint88(value);
     }
 
@@ -1495,7 +1685,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint80(uint256 value) internal pure returns (uint80) {
-        require(value <= type(uint80).max, "SafeCast: value doesn't fit in 80 bits");
+        require(
+            value <= type(uint80).max,
+            "SafeCast: value doesn't fit in 80 bits"
+        );
         return uint80(value);
     }
 
@@ -1512,7 +1705,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint72(uint256 value) internal pure returns (uint72) {
-        require(value <= type(uint72).max, "SafeCast: value doesn't fit in 72 bits");
+        require(
+            value <= type(uint72).max,
+            "SafeCast: value doesn't fit in 72 bits"
+        );
         return uint72(value);
     }
 
@@ -1529,7 +1725,10 @@ library SafeCastUpgradeable {
      * _Available since v2.5._
      */
     function toUint64(uint256 value) internal pure returns (uint64) {
-        require(value <= type(uint64).max, "SafeCast: value doesn't fit in 64 bits");
+        require(
+            value <= type(uint64).max,
+            "SafeCast: value doesn't fit in 64 bits"
+        );
         return uint64(value);
     }
 
@@ -1546,7 +1745,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint56(uint256 value) internal pure returns (uint56) {
-        require(value <= type(uint56).max, "SafeCast: value doesn't fit in 56 bits");
+        require(
+            value <= type(uint56).max,
+            "SafeCast: value doesn't fit in 56 bits"
+        );
         return uint56(value);
     }
 
@@ -1563,7 +1765,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint48(uint256 value) internal pure returns (uint48) {
-        require(value <= type(uint48).max, "SafeCast: value doesn't fit in 48 bits");
+        require(
+            value <= type(uint48).max,
+            "SafeCast: value doesn't fit in 48 bits"
+        );
         return uint48(value);
     }
 
@@ -1580,7 +1785,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint40(uint256 value) internal pure returns (uint40) {
-        require(value <= type(uint40).max, "SafeCast: value doesn't fit in 40 bits");
+        require(
+            value <= type(uint40).max,
+            "SafeCast: value doesn't fit in 40 bits"
+        );
         return uint40(value);
     }
 
@@ -1597,7 +1805,10 @@ library SafeCastUpgradeable {
      * _Available since v2.5._
      */
     function toUint32(uint256 value) internal pure returns (uint32) {
-        require(value <= type(uint32).max, "SafeCast: value doesn't fit in 32 bits");
+        require(
+            value <= type(uint32).max,
+            "SafeCast: value doesn't fit in 32 bits"
+        );
         return uint32(value);
     }
 
@@ -1614,7 +1825,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toUint24(uint256 value) internal pure returns (uint24) {
-        require(value <= type(uint24).max, "SafeCast: value doesn't fit in 24 bits");
+        require(
+            value <= type(uint24).max,
+            "SafeCast: value doesn't fit in 24 bits"
+        );
         return uint24(value);
     }
 
@@ -1631,7 +1845,10 @@ library SafeCastUpgradeable {
      * _Available since v2.5._
      */
     function toUint16(uint256 value) internal pure returns (uint16) {
-        require(value <= type(uint16).max, "SafeCast: value doesn't fit in 16 bits");
+        require(
+            value <= type(uint16).max,
+            "SafeCast: value doesn't fit in 16 bits"
+        );
         return uint16(value);
     }
 
@@ -1648,7 +1865,10 @@ library SafeCastUpgradeable {
      * _Available since v2.5._
      */
     function toUint8(uint256 value) internal pure returns (uint8) {
-        require(value <= type(uint8).max, "SafeCast: value doesn't fit in 8 bits");
+        require(
+            value <= type(uint8).max,
+            "SafeCast: value doesn't fit in 8 bits"
+        );
         return uint8(value);
     }
 
@@ -1680,7 +1900,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt248(int256 value) internal pure returns (int248) {
-        require(value >= type(int248).min && value <= type(int248).max, "SafeCast: value doesn't fit in 248 bits");
+        require(
+            value >= type(int248).min && value <= type(int248).max,
+            "SafeCast: value doesn't fit in 248 bits"
+        );
         return int248(value);
     }
 
@@ -1698,7 +1921,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt240(int256 value) internal pure returns (int240) {
-        require(value >= type(int240).min && value <= type(int240).max, "SafeCast: value doesn't fit in 240 bits");
+        require(
+            value >= type(int240).min && value <= type(int240).max,
+            "SafeCast: value doesn't fit in 240 bits"
+        );
         return int240(value);
     }
 
@@ -1716,7 +1942,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt232(int256 value) internal pure returns (int232) {
-        require(value >= type(int232).min && value <= type(int232).max, "SafeCast: value doesn't fit in 232 bits");
+        require(
+            value >= type(int232).min && value <= type(int232).max,
+            "SafeCast: value doesn't fit in 232 bits"
+        );
         return int232(value);
     }
 
@@ -1734,7 +1963,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt224(int256 value) internal pure returns (int224) {
-        require(value >= type(int224).min && value <= type(int224).max, "SafeCast: value doesn't fit in 224 bits");
+        require(
+            value >= type(int224).min && value <= type(int224).max,
+            "SafeCast: value doesn't fit in 224 bits"
+        );
         return int224(value);
     }
 
@@ -1752,7 +1984,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt216(int256 value) internal pure returns (int216) {
-        require(value >= type(int216).min && value <= type(int216).max, "SafeCast: value doesn't fit in 216 bits");
+        require(
+            value >= type(int216).min && value <= type(int216).max,
+            "SafeCast: value doesn't fit in 216 bits"
+        );
         return int216(value);
     }
 
@@ -1770,7 +2005,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt208(int256 value) internal pure returns (int208) {
-        require(value >= type(int208).min && value <= type(int208).max, "SafeCast: value doesn't fit in 208 bits");
+        require(
+            value >= type(int208).min && value <= type(int208).max,
+            "SafeCast: value doesn't fit in 208 bits"
+        );
         return int208(value);
     }
 
@@ -1788,7 +2026,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt200(int256 value) internal pure returns (int200) {
-        require(value >= type(int200).min && value <= type(int200).max, "SafeCast: value doesn't fit in 200 bits");
+        require(
+            value >= type(int200).min && value <= type(int200).max,
+            "SafeCast: value doesn't fit in 200 bits"
+        );
         return int200(value);
     }
 
@@ -1806,7 +2047,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt192(int256 value) internal pure returns (int192) {
-        require(value >= type(int192).min && value <= type(int192).max, "SafeCast: value doesn't fit in 192 bits");
+        require(
+            value >= type(int192).min && value <= type(int192).max,
+            "SafeCast: value doesn't fit in 192 bits"
+        );
         return int192(value);
     }
 
@@ -1824,7 +2068,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt184(int256 value) internal pure returns (int184) {
-        require(value >= type(int184).min && value <= type(int184).max, "SafeCast: value doesn't fit in 184 bits");
+        require(
+            value >= type(int184).min && value <= type(int184).max,
+            "SafeCast: value doesn't fit in 184 bits"
+        );
         return int184(value);
     }
 
@@ -1842,7 +2089,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt176(int256 value) internal pure returns (int176) {
-        require(value >= type(int176).min && value <= type(int176).max, "SafeCast: value doesn't fit in 176 bits");
+        require(
+            value >= type(int176).min && value <= type(int176).max,
+            "SafeCast: value doesn't fit in 176 bits"
+        );
         return int176(value);
     }
 
@@ -1860,7 +2110,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt168(int256 value) internal pure returns (int168) {
-        require(value >= type(int168).min && value <= type(int168).max, "SafeCast: value doesn't fit in 168 bits");
+        require(
+            value >= type(int168).min && value <= type(int168).max,
+            "SafeCast: value doesn't fit in 168 bits"
+        );
         return int168(value);
     }
 
@@ -1878,7 +2131,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt160(int256 value) internal pure returns (int160) {
-        require(value >= type(int160).min && value <= type(int160).max, "SafeCast: value doesn't fit in 160 bits");
+        require(
+            value >= type(int160).min && value <= type(int160).max,
+            "SafeCast: value doesn't fit in 160 bits"
+        );
         return int160(value);
     }
 
@@ -1896,7 +2152,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt152(int256 value) internal pure returns (int152) {
-        require(value >= type(int152).min && value <= type(int152).max, "SafeCast: value doesn't fit in 152 bits");
+        require(
+            value >= type(int152).min && value <= type(int152).max,
+            "SafeCast: value doesn't fit in 152 bits"
+        );
         return int152(value);
     }
 
@@ -1914,7 +2173,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt144(int256 value) internal pure returns (int144) {
-        require(value >= type(int144).min && value <= type(int144).max, "SafeCast: value doesn't fit in 144 bits");
+        require(
+            value >= type(int144).min && value <= type(int144).max,
+            "SafeCast: value doesn't fit in 144 bits"
+        );
         return int144(value);
     }
 
@@ -1932,7 +2194,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt136(int256 value) internal pure returns (int136) {
-        require(value >= type(int136).min && value <= type(int136).max, "SafeCast: value doesn't fit in 136 bits");
+        require(
+            value >= type(int136).min && value <= type(int136).max,
+            "SafeCast: value doesn't fit in 136 bits"
+        );
         return int136(value);
     }
 
@@ -1950,7 +2215,10 @@ library SafeCastUpgradeable {
      * _Available since v3.1._
      */
     function toInt128(int256 value) internal pure returns (int128) {
-        require(value >= type(int128).min && value <= type(int128).max, "SafeCast: value doesn't fit in 128 bits");
+        require(
+            value >= type(int128).min && value <= type(int128).max,
+            "SafeCast: value doesn't fit in 128 bits"
+        );
         return int128(value);
     }
 
@@ -1968,7 +2236,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt120(int256 value) internal pure returns (int120) {
-        require(value >= type(int120).min && value <= type(int120).max, "SafeCast: value doesn't fit in 120 bits");
+        require(
+            value >= type(int120).min && value <= type(int120).max,
+            "SafeCast: value doesn't fit in 120 bits"
+        );
         return int120(value);
     }
 
@@ -1986,7 +2257,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt112(int256 value) internal pure returns (int112) {
-        require(value >= type(int112).min && value <= type(int112).max, "SafeCast: value doesn't fit in 112 bits");
+        require(
+            value >= type(int112).min && value <= type(int112).max,
+            "SafeCast: value doesn't fit in 112 bits"
+        );
         return int112(value);
     }
 
@@ -2004,7 +2278,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt104(int256 value) internal pure returns (int104) {
-        require(value >= type(int104).min && value <= type(int104).max, "SafeCast: value doesn't fit in 104 bits");
+        require(
+            value >= type(int104).min && value <= type(int104).max,
+            "SafeCast: value doesn't fit in 104 bits"
+        );
         return int104(value);
     }
 
@@ -2022,7 +2299,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt96(int256 value) internal pure returns (int96) {
-        require(value >= type(int96).min && value <= type(int96).max, "SafeCast: value doesn't fit in 96 bits");
+        require(
+            value >= type(int96).min && value <= type(int96).max,
+            "SafeCast: value doesn't fit in 96 bits"
+        );
         return int96(value);
     }
 
@@ -2040,7 +2320,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt88(int256 value) internal pure returns (int88) {
-        require(value >= type(int88).min && value <= type(int88).max, "SafeCast: value doesn't fit in 88 bits");
+        require(
+            value >= type(int88).min && value <= type(int88).max,
+            "SafeCast: value doesn't fit in 88 bits"
+        );
         return int88(value);
     }
 
@@ -2058,7 +2341,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt80(int256 value) internal pure returns (int80) {
-        require(value >= type(int80).min && value <= type(int80).max, "SafeCast: value doesn't fit in 80 bits");
+        require(
+            value >= type(int80).min && value <= type(int80).max,
+            "SafeCast: value doesn't fit in 80 bits"
+        );
         return int80(value);
     }
 
@@ -2076,7 +2362,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt72(int256 value) internal pure returns (int72) {
-        require(value >= type(int72).min && value <= type(int72).max, "SafeCast: value doesn't fit in 72 bits");
+        require(
+            value >= type(int72).min && value <= type(int72).max,
+            "SafeCast: value doesn't fit in 72 bits"
+        );
         return int72(value);
     }
 
@@ -2094,7 +2383,10 @@ library SafeCastUpgradeable {
      * _Available since v3.1._
      */
     function toInt64(int256 value) internal pure returns (int64) {
-        require(value >= type(int64).min && value <= type(int64).max, "SafeCast: value doesn't fit in 64 bits");
+        require(
+            value >= type(int64).min && value <= type(int64).max,
+            "SafeCast: value doesn't fit in 64 bits"
+        );
         return int64(value);
     }
 
@@ -2112,7 +2404,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt56(int256 value) internal pure returns (int56) {
-        require(value >= type(int56).min && value <= type(int56).max, "SafeCast: value doesn't fit in 56 bits");
+        require(
+            value >= type(int56).min && value <= type(int56).max,
+            "SafeCast: value doesn't fit in 56 bits"
+        );
         return int56(value);
     }
 
@@ -2130,7 +2425,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt48(int256 value) internal pure returns (int48) {
-        require(value >= type(int48).min && value <= type(int48).max, "SafeCast: value doesn't fit in 48 bits");
+        require(
+            value >= type(int48).min && value <= type(int48).max,
+            "SafeCast: value doesn't fit in 48 bits"
+        );
         return int48(value);
     }
 
@@ -2148,7 +2446,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt40(int256 value) internal pure returns (int40) {
-        require(value >= type(int40).min && value <= type(int40).max, "SafeCast: value doesn't fit in 40 bits");
+        require(
+            value >= type(int40).min && value <= type(int40).max,
+            "SafeCast: value doesn't fit in 40 bits"
+        );
         return int40(value);
     }
 
@@ -2166,7 +2467,10 @@ library SafeCastUpgradeable {
      * _Available since v3.1._
      */
     function toInt32(int256 value) internal pure returns (int32) {
-        require(value >= type(int32).min && value <= type(int32).max, "SafeCast: value doesn't fit in 32 bits");
+        require(
+            value >= type(int32).min && value <= type(int32).max,
+            "SafeCast: value doesn't fit in 32 bits"
+        );
         return int32(value);
     }
 
@@ -2184,7 +2488,10 @@ library SafeCastUpgradeable {
      * _Available since v4.7._
      */
     function toInt24(int256 value) internal pure returns (int24) {
-        require(value >= type(int24).min && value <= type(int24).max, "SafeCast: value doesn't fit in 24 bits");
+        require(
+            value >= type(int24).min && value <= type(int24).max,
+            "SafeCast: value doesn't fit in 24 bits"
+        );
         return int24(value);
     }
 
@@ -2202,7 +2509,10 @@ library SafeCastUpgradeable {
      * _Available since v3.1._
      */
     function toInt16(int256 value) internal pure returns (int16) {
-        require(value >= type(int16).min && value <= type(int16).max, "SafeCast: value doesn't fit in 16 bits");
+        require(
+            value >= type(int16).min && value <= type(int16).max,
+            "SafeCast: value doesn't fit in 16 bits"
+        );
         return int16(value);
     }
 
@@ -2220,7 +2530,10 @@ library SafeCastUpgradeable {
      * _Available since v3.1._
      */
     function toInt8(int256 value) internal pure returns (int8) {
-        require(value >= type(int8).min && value <= type(int8).max, "SafeCast: value doesn't fit in 8 bits");
+        require(
+            value >= type(int8).min && value <= type(int8).max,
+            "SafeCast: value doesn't fit in 8 bits"
+        );
         return int8(value);
     }
 
@@ -2235,7 +2548,10 @@ library SafeCastUpgradeable {
      */
     function toInt256(uint256 value) internal pure returns (int256) {
         // Note: Unsafe cast below is okay because `type(int256).max` is guaranteed to be positive
-        require(value <= uint256(type(int256).max), "SafeCast: value doesn't fit in an int256");
+        require(
+            value <= uint256(type(int256).max),
+            "SafeCast: value doesn't fit in an int256"
+        );
         return int256(value);
     }
 }
@@ -2465,7 +2781,9 @@ abstract contract Initializable {
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
         require(
-            (isTopLevelCall && _initialized < 1) || (!AddressUpgradeable.isContract(address(this)) && _initialized == 1),
+            (isTopLevelCall && _initialized < 1) ||
+                (!AddressUpgradeable.isContract(address(this)) &&
+                    _initialized == 1),
             "Initializable: contract is already initialized"
         );
         _initialized = 1;
@@ -2492,7 +2810,10 @@ abstract contract Initializable {
      * a contract, executing them in the right order is up to the developer or operator.
      */
     modifier reinitializer(uint8 version) {
-        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+        require(
+            !_initializing && _initialized < version,
+            "Initializable: contract is already initialized"
+        );
         _initialized = version;
         _initializing = true;
         _;
@@ -2577,7 +2898,10 @@ library ECDSAUpgradeable {
      *
      * _Available since v4.3._
      */
-    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
+    function tryRecover(
+        bytes32 hash,
+        bytes memory signature
+    ) internal pure returns (address, RecoverError) {
         // Check the signature length
         // - case 65: r,s,v signature (standard)
         // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._
@@ -2624,7 +2948,10 @@ library ECDSAUpgradeable {
      * this is by receiving a hash of the original message (which may otherwise
      * be too long), and then calling {toEthSignedMessageHash} on it.
      */
-    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+    function recover(
+        bytes32 hash,
+        bytes memory signature
+    ) internal pure returns (address) {
         (address recovered, RecoverError error) = tryRecover(hash, signature);
         _throwError(error);
         return recovered;
@@ -2642,7 +2969,10 @@ library ECDSAUpgradeable {
         bytes32 r,
         bytes32 vs
     ) internal pure returns (address, RecoverError) {
-        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        bytes32 s = vs &
+            bytes32(
+                0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            );
         uint8 v = uint8((uint256(vs) >> 255) + 27);
         return tryRecover(hash, v, r, s);
     }
@@ -2683,7 +3013,10 @@ library ECDSAUpgradeable {
         // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
         // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
         // these malleable signatures as well.
-        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
+        if (
+            uint256(s) >
+            0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0
+        ) {
             return (address(0), RecoverError.InvalidSignatureS);
         }
         if (v != 27 && v != 28) {
@@ -2722,10 +3055,15 @@ library ECDSAUpgradeable {
      *
      * See {recover}.
      */
-    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
+    function toEthSignedMessageHash(
+        bytes32 hash
+    ) internal pure returns (bytes32) {
         // 32 is the length in bytes of hash,
         // enforced by the type signature above
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        return
+            keccak256(
+                abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
+            );
     }
 
     /**
@@ -2736,8 +3074,17 @@ library ECDSAUpgradeable {
      *
      * See {recover}.
      */
-    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", StringsUpgradeable.toString(s.length), s));
+    function toEthSignedMessageHash(
+        bytes memory s
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19Ethereum Signed Message:\n",
+                    StringsUpgradeable.toString(s.length),
+                    s
+                )
+            );
     }
 
     /**
@@ -2749,8 +3096,14 @@ library ECDSAUpgradeable {
      *
      * See {recover}.
      */
-    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+    function toTypedDataHash(
+        bytes32 domainSeparator,
+        bytes32 structHash
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked("\x19\x01", domainSeparator, structHash)
+            );
     }
 }
 
@@ -2761,7 +3114,6 @@ interface IAVSDirectory is ISignatureUtils {
     enum OperatorAVSRegistrationStatus {
         UNREGISTERED, // Operator not registered to AVS
         REGISTERED // Operator registered to AVS
-
     }
 
     /**
@@ -2772,7 +3124,9 @@ interface IAVSDirectory is ISignatureUtils {
 
     /// @notice Emitted when an operator's registration status for an AVS is updated
     event OperatorAVSRegistrationStatusUpdated(
-        address indexed operator, address indexed avs, OperatorAVSRegistrationStatus status
+        address indexed operator,
+        address indexed avs,
+        OperatorAVSRegistrationStatus status
     );
 
     /**
@@ -2802,7 +3156,10 @@ interface IAVSDirectory is ISignatureUtils {
      * @notice Returns whether or not the salt has already been used by the operator.
      * @dev Salts is used in the `registerOperatorToAVS` function.
      */
-    function operatorSaltIsSpent(address operator, bytes32 salt) external view returns (bool);
+    function operatorSaltIsSpent(
+        address operator,
+        bytes32 salt
+    ) external view returns (bool);
 
     /**
      * @notice Calculates the digest hash to be signed by an operator to register with an AVS
@@ -2819,7 +3176,10 @@ interface IAVSDirectory is ISignatureUtils {
     ) external view returns (bytes32);
 
     /// @notice The EIP-712 typehash for the Registration struct used by the contract
-    function OPERATOR_AVS_REGISTRATION_TYPEHASH() external view returns (bytes32);
+    function OPERATOR_AVS_REGISTRATION_TYPEHASH()
+        external
+        view
+        returns (bytes32);
 }
 
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/src/contracts/interfaces/IStrategy.sol
@@ -2864,7 +3224,11 @@ interface IStrategy {
      * @dev This function is only callable by the strategyManager contract. It is invoked inside of the strategyManager's
      * other functions, and individual share balances are recorded in the strategyManager as well.
      */
-    function withdraw(address recipient, IERC20 token, uint256 amountShares) external;
+    function withdraw(
+        address recipient,
+        IERC20 token,
+        uint256 amountShares
+    ) external;
 
     /**
      * @notice Used to convert a number of shares to the equivalent amount of underlying tokens for this strategy.
@@ -2873,7 +3237,9 @@ interface IStrategy {
      * @return The amount of underlying tokens corresponding to the input `amountShares`
      * @dev Implementation for these functions in particular may vary significantly for different strategies
      */
-    function sharesToUnderlying(uint256 amountShares) external returns (uint256);
+    function sharesToUnderlying(
+        uint256 amountShares
+    ) external returns (uint256);
 
     /**
      * @notice Used to convert an amount of underlying tokens to the equivalent amount of shares in this strategy.
@@ -2882,7 +3248,9 @@ interface IStrategy {
      * @return The amount of underlying tokens corresponding to the input `amountShares`
      * @dev Implementation for these functions in particular may vary significantly for different strategies
      */
-    function underlyingToShares(uint256 amountUnderlying) external returns (uint256);
+    function underlyingToShares(
+        uint256 amountUnderlying
+    ) external returns (uint256);
 
     /**
      * @notice convenience function for fetching the current underlying value of all of the `user`'s shares in
@@ -2903,7 +3271,9 @@ interface IStrategy {
      * @return The amount of shares corresponding to the input `amountUnderlying`
      * @dev Implementation for these functions in particular may vary significantly for different strategies
      */
-    function sharesToUnderlyingView(uint256 amountShares) external view returns (uint256);
+    function sharesToUnderlyingView(
+        uint256 amountShares
+    ) external view returns (uint256);
 
     /**
      * @notice Used to convert an amount of underlying tokens to the equivalent amount of shares in this strategy.
@@ -2912,7 +3282,9 @@ interface IStrategy {
      * @return The amount of shares corresponding to the input `amountUnderlying`
      * @dev Implementation for these functions in particular may vary significantly for different strategies
      */
-    function underlyingToSharesView(uint256 amountUnderlying) external view returns (uint256);
+    function underlyingToSharesView(
+        uint256 amountUnderlying
+    ) external view returns (uint256);
 
     /**
      * @notice convenience function for fetching the current underlying value of all of the `user`'s shares in
@@ -2972,18 +3344,23 @@ interface IServiceManagerUI {
      * @notice Returns the list of strategies that the operator has potentially restaked on the AVS
      * @param operator The address of the operator to get restaked strategies for
      * @dev This function is intended to be called off-chain
-     * @dev No guarantee is made on whether the operator has shares for a strategy in a quorum or uniqueness 
+     * @dev No guarantee is made on whether the operator has shares for a strategy in a quorum or uniqueness
      *      of each element in the returned array. The off-chain service should do that validation separately
      */
-    function getOperatorRestakedStrategies(address operator) external view returns (address[] memory);
+    function getOperatorRestakedStrategies(
+        address operator
+    ) external view returns (address[] memory);
 
     /**
      * @notice Returns the list of strategies that the AVS supports for restaking
      * @dev This function is intended to be called off-chain
-     * @dev No guarantee is made on uniqueness of each element in the returned array. 
+     * @dev No guarantee is made on uniqueness of each element in the returned array.
      *      The off-chain service should do that validation separately
      */
-    function getRestakeableStrategies() external view returns (address[] memory);
+    function getRestakeableStrategies()
+        external
+        view
+        returns (address[] memory);
 
     /// @notice Returns the EigenLayer AVSDirectory contract.
     function avsDirectory() external view returns (address);
@@ -3024,7 +3401,10 @@ library CheckpointsUpgradeable {
      * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
      * before it is returned, or zero otherwise.
      */
-    function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
+    function getAtBlock(
+        History storage self,
+        uint256 blockNumber
+    ) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
         uint256 high = self._checkpoints.length;
@@ -3045,14 +3425,24 @@ library CheckpointsUpgradeable {
      *
      * Returns previous value and new value.
      */
-    function push(History storage self, uint256 value) internal returns (uint256, uint256) {
+    function push(
+        History storage self,
+        uint256 value
+    ) internal returns (uint256, uint256) {
         uint256 pos = self._checkpoints.length;
         uint256 old = latest(self);
-        if (pos > 0 && self._checkpoints[pos - 1]._blockNumber == block.number) {
-            self._checkpoints[pos - 1]._value = SafeCastUpgradeable.toUint224(value);
+        if (
+            pos > 0 && self._checkpoints[pos - 1]._blockNumber == block.number
+        ) {
+            self._checkpoints[pos - 1]._value = SafeCastUpgradeable.toUint224(
+                value
+            );
         } else {
             self._checkpoints.push(
-                Checkpoint({_blockNumber: SafeCastUpgradeable.toUint32(block.number), _value: SafeCastUpgradeable.toUint224(value)})
+                Checkpoint({
+                    _blockNumber: SafeCastUpgradeable.toUint32(block.number),
+                    _value: SafeCastUpgradeable.toUint224(value)
+                })
             );
         }
         return (old, value);
@@ -3088,11 +3478,9 @@ library CheckpointsUpgradeable {
  * This contract is only required for intermediate, library-like contracts.
  */
 abstract contract ContextUpgradeable is Initializable {
-    function __Context_init() internal onlyInitializing {
-    }
+    function __Context_init() internal onlyInitializing {}
 
-    function __Context_init_unchained() internal onlyInitializing {
-    }
+    function __Context_init_unchained() internal onlyInitializing {}
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
@@ -3251,13 +3639,28 @@ interface IRewardsCoordinator {
         RewardsSubmission rewardsSubmission
     );
     /// @notice rewardsUpdater is responsible for submiting DistributionRoots, only owner can set rewardsUpdater
-    event RewardsUpdaterSet(address indexed oldRewardsUpdater, address indexed newRewardsUpdater);
-    event RewardsForAllSubmitterSet(
-        address indexed rewardsForAllSubmitter, bool indexed oldValue, bool indexed newValue
+    event RewardsUpdaterSet(
+        address indexed oldRewardsUpdater,
+        address indexed newRewardsUpdater
     );
-    event ActivationDelaySet(uint32 oldActivationDelay, uint32 newActivationDelay);
-    event GlobalCommissionBipsSet(uint16 oldGlobalCommissionBips, uint16 newGlobalCommissionBips);
-    event ClaimerForSet(address indexed earner, address indexed oldClaimer, address indexed claimer);
+    event RewardsForAllSubmitterSet(
+        address indexed rewardsForAllSubmitter,
+        bool indexed oldValue,
+        bool indexed newValue
+    );
+    event ActivationDelaySet(
+        uint32 oldActivationDelay,
+        uint32 newActivationDelay
+    );
+    event GlobalCommissionBipsSet(
+        uint16 oldGlobalCommissionBips,
+        uint16 newGlobalCommissionBips
+    );
+    event ClaimerForSet(
+        address indexed earner,
+        address indexed oldClaimer,
+        address indexed claimer
+    );
     /// @notice rootIndex is the specific array index of the newly created root in the storage array
     event DistributionRootSubmitted(
         uint32 indexed rootIndex,
@@ -3310,43 +3713,68 @@ interface IRewardsCoordinator {
     function claimerFor(address earner) external view returns (address);
 
     /// @notice Mapping: claimer => token => total amount claimed
-    function cumulativeClaimed(address claimer, IERC20 token) external view returns (uint256);
+    function cumulativeClaimed(
+        address claimer,
+        IERC20 token
+    ) external view returns (uint256);
 
     /// @notice the commission for all operators across all avss
     function globalOperatorCommissionBips() external view returns (uint16);
 
     /// @notice the commission for a specific operator for a specific avs
     /// NOTE: Currently unused and simply returns the globalOperatorCommissionBips value but will be used in future release
-    function operatorCommissionBips(address operator, address avs) external view returns (uint16);
+    function operatorCommissionBips(
+        address operator,
+        address avs
+    ) external view returns (uint16);
 
     /// @notice return the hash of the earner's leaf
-    function calculateEarnerLeafHash(EarnerTreeMerkleLeaf calldata leaf) external pure returns (bytes32);
+    function calculateEarnerLeafHash(
+        EarnerTreeMerkleLeaf calldata leaf
+    ) external pure returns (bytes32);
 
     /// @notice returns the hash of the earner's token leaf
-    function calculateTokenLeafHash(TokenTreeMerkleLeaf calldata leaf) external pure returns (bytes32);
+    function calculateTokenLeafHash(
+        TokenTreeMerkleLeaf calldata leaf
+    ) external pure returns (bytes32);
 
     /// @notice returns 'true' if the claim would currently pass the check in `processClaims`
     /// but will revert if not valid
-    function checkClaim(RewardsMerkleClaim calldata claim) external view returns (bool);
+    function checkClaim(
+        RewardsMerkleClaim calldata claim
+    ) external view returns (bool);
 
     /// @notice The timestamp until which RewardsSubmissions have been calculated
-    function currRewardsCalculationEndTimestamp() external view returns (uint32);
+    function currRewardsCalculationEndTimestamp()
+        external
+        view
+        returns (uint32);
 
     /// @notice returns the number of distribution roots posted
     function getDistributionRootsLength() external view returns (uint256);
 
     /// @notice returns the distributionRoot at the specified index
-    function getDistributionRootAtIndex(uint256 index) external view returns (DistributionRoot memory);
+    function getDistributionRootAtIndex(
+        uint256 index
+    ) external view returns (DistributionRoot memory);
 
     /// @notice returns the current distributionRoot
-    function getCurrentDistributionRoot() external view returns (DistributionRoot memory);
+    function getCurrentDistributionRoot()
+        external
+        view
+        returns (DistributionRoot memory);
 
     /// @notice loop through the distribution roots from reverse and get latest root that is not disabled and activated
     /// i.e. a root that can be claimed against
-    function getCurrentClaimableDistributionRoot() external view returns (DistributionRoot memory);
+    function getCurrentClaimableDistributionRoot()
+        external
+        view
+        returns (DistributionRoot memory);
 
     /// @notice loop through distribution roots from reverse and return index from hash
-    function getRootIndexFromHash(bytes32 rootHash) external view returns (uint32);
+    function getRootIndexFromHash(
+        bytes32 rootHash
+    ) external view returns (uint32);
 
     /**
      *
@@ -3365,14 +3793,18 @@ interface IRewardsCoordinator {
      * @dev This function will revert if the `rewardsSubmission` is malformed,
      * e.g. if the `strategies` and `weights` arrays are of non-equal lengths
      */
-    function createAVSRewardsSubmission(RewardsSubmission[] calldata rewardsSubmissions) external;
+    function createAVSRewardsSubmission(
+        RewardsSubmission[] calldata rewardsSubmissions
+    ) external;
 
     /**
      * @notice similar to `createAVSRewardsSubmission` except the rewards are split amongst *all* stakers
      * rather than just those delegated to operators who are registered to a single avs and is
      * a permissioned call based on isRewardsForAllSubmitter mapping.
      */
-    function createRewardsForAllSubmission(RewardsSubmission[] calldata rewardsSubmission) external;
+    function createRewardsForAllSubmission(
+        RewardsSubmission[] calldata rewardsSubmission
+    ) external;
 
     /**
      * @notice Claim rewards against a given root (read from _distributionRoots[claim.rootIndex]).
@@ -3386,7 +3818,10 @@ interface IRewardsCoordinator {
      * if claimerFor[claim.earner] is address(0) then only the earner can claim, otherwise only
      * claimerFor[claim.earner] can claim the rewards.
      */
-    function processClaim(RewardsMerkleClaim calldata claim, address recipient) external;
+    function processClaim(
+        RewardsMerkleClaim calldata claim,
+        address recipient
+    ) external;
 
     /**
      * @notice Creates a new distribution root. activatedAt is set to block.timestamp + activationDelay
@@ -3394,7 +3829,10 @@ interface IRewardsCoordinator {
      * @param rewardsCalculationEndTimestamp The timestamp (seconds) until which rewards have been calculated
      * @dev Only callable by the rewardsUpdater
      */
-    function submitRoot(bytes32 root, uint32 rewardsCalculationEndTimestamp) external;
+    function submitRoot(
+        bytes32 root,
+        uint32 rewardsCalculationEndTimestamp
+    ) external;
 
     /**
      * @notice allow the rewardsUpdater to disable/cancel a pending root submission in case of an error
@@ -3435,7 +3873,10 @@ interface IRewardsCoordinator {
      * @param _submitter The address of the rewardsForAllSubmitter
      * @param _newValue The new value for isRewardsForAllSubmitter
      */
-    function setRewardsForAllSubmitter(address _submitter, bool _newValue) external;
+    function setRewardsForAllSubmitter(
+        address _submitter,
+        bool _newValue
+    ) external;
 }
 
 // lib/eigenlayer-middleware/src/interfaces/IECDSAStakeRegistryEventsAndErrors.sol
@@ -3566,7 +4007,10 @@ interface ECDSAStakeRegistryEventsAndErrors {
 abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -3617,7 +4061,10 @@ abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _transferOwnership(newOwner);
     }
 
@@ -3737,22 +4184,41 @@ interface IDelegationManager is ISignatureUtils {
     }
 
     // @notice Emitted when a new operator registers in EigenLayer and provides their OperatorDetails.
-    event OperatorRegistered(address indexed operator, OperatorDetails operatorDetails);
+    event OperatorRegistered(
+        address indexed operator,
+        OperatorDetails operatorDetails
+    );
 
     /// @notice Emitted when an operator updates their OperatorDetails to @param newOperatorDetails
-    event OperatorDetailsModified(address indexed operator, OperatorDetails newOperatorDetails);
+    event OperatorDetailsModified(
+        address indexed operator,
+        OperatorDetails newOperatorDetails
+    );
 
     /**
      * @notice Emitted when @param operator indicates that they are updating their MetadataURI string
      * @dev Note that these strings are *never stored in storage* and are instead purely emitted in events for off-chain indexing
      */
-    event OperatorMetadataURIUpdated(address indexed operator, string metadataURI);
+    event OperatorMetadataURIUpdated(
+        address indexed operator,
+        string metadataURI
+    );
 
     /// @notice Emitted whenever an operator's shares are increased for a given strategy. Note that shares is the delta in the operator's shares.
-    event OperatorSharesIncreased(address indexed operator, address staker, IStrategy strategy, uint256 shares);
+    event OperatorSharesIncreased(
+        address indexed operator,
+        address staker,
+        IStrategy strategy,
+        uint256 shares
+    );
 
     /// @notice Emitted whenever an operator's shares are decreased for a given strategy. Note that shares is the delta in the operator's shares.
-    event OperatorSharesDecreased(address indexed operator, address staker, IStrategy strategy, uint256 shares);
+    event OperatorSharesDecreased(
+        address indexed operator,
+        address staker,
+        IStrategy strategy,
+        uint256 shares
+    );
 
     /// @notice Emitted when @param staker delegates to @param operator.
     event StakerDelegated(address indexed staker, address indexed operator);
@@ -3761,7 +4227,10 @@ interface IDelegationManager is ISignatureUtils {
     event StakerUndelegated(address indexed staker, address indexed operator);
 
     /// @notice Emitted when @param staker is undelegated via a call not originating from the staker themself
-    event StakerForceUndelegated(address indexed staker, address indexed operator);
+    event StakerForceUndelegated(
+        address indexed staker,
+        address indexed operator
+    );
 
     /**
      * @notice Emitted when a new withdrawal is queued.
@@ -3777,7 +4246,11 @@ interface IDelegationManager is ISignatureUtils {
     event MinWithdrawalDelayBlocksSet(uint256 previousValue, uint256 newValue);
 
     /// @notice Emitted when the `strategyWithdrawalDelayBlocks` variable is modified from `previousValue` to `newValue`.
-    event StrategyWithdrawalDelayBlocksSet(IStrategy strategy, uint256 previousValue, uint256 newValue);
+    event StrategyWithdrawalDelayBlocksSet(
+        IStrategy strategy,
+        uint256 previousValue,
+        uint256 newValue
+    );
 
     /**
      * @notice Registers the caller as an operator in EigenLayer.
@@ -3798,7 +4271,9 @@ interface IDelegationManager is ISignatureUtils {
      *
      * @dev The caller must have previously registered as an operator in EigenLayer.
      */
-    function modifyOperatorDetails(OperatorDetails calldata newOperatorDetails) external;
+    function modifyOperatorDetails(
+        OperatorDetails calldata newOperatorDetails
+    ) external;
 
     /**
      * @notice Called by an operator to emit an `OperatorMetadataURIUpdated` event indicating the information has updated.
@@ -3861,7 +4336,9 @@ interface IDelegationManager is ISignatureUtils {
      * @dev Reverts if the caller is not the staker, nor the operator who the staker is delegated to, nor the operator's specified "delegationApprover"
      * @dev Reverts if the `staker` is already undelegated.
      */
-    function undelegate(address staker) external returns (bytes32[] memory withdrawalRoot);
+    function undelegate(
+        address staker
+    ) external returns (bytes32[] memory withdrawalRoot);
 
     /**
      * Allows a staker to withdraw some shares. Withdrawn shares/strategies are immediately removed
@@ -3870,9 +4347,9 @@ interface IDelegationManager is ISignatureUtils {
      *
      * All withdrawn shares/strategies are placed in a queue and can be fully withdrawn after a delay.
      */
-    function queueWithdrawals(QueuedWithdrawalParams[] calldata queuedWithdrawalParams)
-        external
-        returns (bytes32[] memory);
+    function queueWithdrawals(
+        QueuedWithdrawalParams[] calldata queuedWithdrawalParams
+    ) external returns (bytes32[] memory);
 
     /**
      * @notice Used to complete the specified `withdrawal`. The caller must match `withdrawal.withdrawer`
@@ -3920,7 +4397,11 @@ interface IDelegationManager is ISignatureUtils {
      * @dev *If the staker is actively delegated*, then increases the `staker`'s delegated shares in `strategy` by `shares`. Otherwise does nothing.
      * @dev Callable only by the StrategyManager or EigenPodManager.
      */
-    function increaseDelegatedShares(address staker, IStrategy strategy, uint256 shares) external;
+    function increaseDelegatedShares(
+        address staker,
+        IStrategy strategy,
+        uint256 shares
+    ) external;
 
     /**
      * @notice Decreases a staker's delegated share balance in a strategy.
@@ -3931,7 +4412,11 @@ interface IDelegationManager is ISignatureUtils {
      * @dev *If the staker is actively delegated*, then decreases the `staker`'s delegated shares in `strategy` by `shares`. Otherwise does nothing.
      * @dev Callable only by the StrategyManager or EigenPodManager.
      */
-    function decreaseDelegatedShares(address staker, IStrategy strategy, uint256 shares) external;
+    function decreaseDelegatedShares(
+        address staker,
+        IStrategy strategy,
+        uint256 shares
+    ) external;
 
     /**
      * @notice returns the address of the operator that `staker` is delegated to.
@@ -3943,17 +4428,23 @@ interface IDelegationManager is ISignatureUtils {
     /**
      * @notice Returns the OperatorDetails struct associated with an `operator`.
      */
-    function operatorDetails(address operator) external view returns (OperatorDetails memory);
+    function operatorDetails(
+        address operator
+    ) external view returns (OperatorDetails memory);
 
     /**
      * @notice Returns the delegationApprover account for an operator
      */
-    function delegationApprover(address operator) external view returns (address);
+    function delegationApprover(
+        address operator
+    ) external view returns (address);
 
     /**
      * @notice Returns the stakerOptOutWindowBlocks for an operator
      */
-    function stakerOptOutWindowBlocks(address operator) external view returns (uint256);
+    function stakerOptOutWindowBlocks(
+        address operator
+    ) external view returns (uint256);
 
     /**
      * @notice Given array of strategies, returns array of shares for the operator
@@ -3968,7 +4459,9 @@ interface IDelegationManager is ISignatureUtils {
      * from all the inputted strategies. Return value is >= minWithdrawalDelayBlocks as this is the global min withdrawal delay.
      * @param strategies The strategies to check withdrawal delays for
      */
-    function getWithdrawalDelay(IStrategy[] calldata strategies) external view returns (uint256);
+    function getWithdrawalDelay(
+        IStrategy[] calldata strategies
+    ) external view returns (uint256);
 
     /**
      * @notice returns the total number of shares in `strategy` that are delegated to `operator`.
@@ -3977,7 +4470,10 @@ interface IDelegationManager is ISignatureUtils {
      * (operator's shares in delegation manager) = sum (shares above zero of all stakers delegated to operator)
      * = sum (delegateable shares of all stakers delegated to the operator)
      */
-    function operatorShares(address operator, IStrategy strategy) external view returns (uint256);
+    function operatorShares(
+        address operator,
+        IStrategy strategy
+    ) external view returns (uint256);
 
     /**
      * @notice Returns 'true' if `staker` *is* actively delegated, and 'false' otherwise.
@@ -3997,7 +4493,10 @@ interface IDelegationManager is ISignatureUtils {
      * @dev Salts are used in the `delegateTo` and `delegateToBySignature` functions. Note that these functions only process the delegationApprover's
      * signature + the provided salt if the operator being delegated to has specified a nonzero address as their `delegationApprover`.
      */
-    function delegationApproverSaltIsSpent(address _delegationApprover, bytes32 salt) external view returns (bool);
+    function delegationApproverSaltIsSpent(
+        address _delegationApprover,
+        bytes32 salt
+    ) external view returns (bool);
 
     /**
      * @notice Minimum delay enforced by this contract for completing queued withdrawals. Measured in blocks, and adjustable by this contract's owner,
@@ -4011,7 +4510,9 @@ interface IDelegationManager is ISignatureUtils {
      * @notice Minimum delay enforced by this contract per Strategy for completing queued withdrawals. Measured in blocks, and adjustable by this contract's owner,
      * up to a maximum of `MAX_WITHDRAWAL_DELAY_BLOCKS`. Minimum value is 0 (i.e. no delay enforced).
      */
-    function strategyWithdrawalDelayBlocks(IStrategy strategy) external view returns (uint256);
+    function strategyWithdrawalDelayBlocks(
+        IStrategy strategy
+    ) external view returns (uint256);
 
     /// @notice return address of the beaconChainETHStrategy
     function beaconChainETHStrategy() external view returns (IStrategy);
@@ -4078,10 +4579,14 @@ interface IDelegationManager is ISignatureUtils {
 
     /// @notice Mapping: staker => cumulative number of queued withdrawals they have ever initiated.
     /// @dev This only increments (doesn't decrement), and is used to help ensure that otherwise identical withdrawals have unique hashes.
-    function cumulativeWithdrawalsQueued(address staker) external view returns (uint256);
+    function cumulativeWithdrawalsQueued(
+        address staker
+    ) external view returns (uint256);
 
     /// @notice Returns the keccak256 hash of `withdrawal`.
-    function calculateWithdrawalRoot(Withdrawal memory withdrawal) external pure returns (bytes32);
+    function calculateWithdrawalRoot(
+        Withdrawal memory withdrawal
+    ) external pure returns (bytes32);
 }
 
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol
@@ -4098,14 +4603,16 @@ interface IDelegationManager is ISignatureUtils {
  */
 abstract contract ERC1967Upgrade {
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
-    bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
+    bytes32 private constant _ROLLBACK_SLOT =
+        0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
     /**
      * @dev Storage slot with the address of the current implementation.
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
      * validated in the constructor.
      */
-    bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 internal constant _IMPLEMENTATION_SLOT =
+        0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
      * @dev Emitted when the implementation is upgraded.
@@ -4123,8 +4630,13 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
-        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+        require(
+            Address.isContract(newImplementation),
+            "ERC1967: new implementation is not a contract"
+        );
+        StorageSlot
+            .getAddressSlot(_IMPLEMENTATION_SLOT)
+            .value = newImplementation;
     }
 
     /**
@@ -4169,8 +4681,13 @@ abstract contract ERC1967Upgrade {
         if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
             _setImplementation(newImplementation);
         } else {
-            try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+            try IERC1822Proxiable(newImplementation).proxiableUUID() returns (
+                bytes32 slot
+            ) {
+                require(
+                    slot == _IMPLEMENTATION_SLOT,
+                    "ERC1967Upgrade: unsupported proxiableUUID"
+                );
             } catch {
                 revert("ERC1967Upgrade: new implementation is not UUPS");
             }
@@ -4183,7 +4700,8 @@ abstract contract ERC1967Upgrade {
      * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1, and is
      * validated in the constructor.
      */
-    bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+    bytes32 internal constant _ADMIN_SLOT =
+        0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
     /**
      * @dev Emitted when the admin account has changed.
@@ -4201,7 +4719,10 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new address in the EIP1967 admin slot.
      */
     function _setAdmin(address newAdmin) private {
-        require(newAdmin != address(0), "ERC1967: new admin is the zero address");
+        require(
+            newAdmin != address(0),
+            "ERC1967: new admin is the zero address"
+        );
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
 
@@ -4219,7 +4740,8 @@ abstract contract ERC1967Upgrade {
      * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
      * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
      */
-    bytes32 internal constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
+    bytes32 internal constant _BEACON_SLOT =
+        0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**
      * @dev Emitted when the beacon is upgraded.
@@ -4237,7 +4759,10 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract");
+        require(
+            Address.isContract(newBeacon),
+            "ERC1967: new beacon is not a contract"
+        );
         require(
             Address.isContract(IBeacon(newBeacon).implementation()),
             "ERC1967: beacon implementation is not a contract"
@@ -4259,7 +4784,10 @@ abstract contract ERC1967Upgrade {
         _setBeacon(newBeacon);
         emit BeaconUpgraded(newBeacon);
         if (data.length > 0 || forceCall) {
-            Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
+            Address.functionDelegateCall(
+                IBeacon(newBeacon).implementation(),
+                data
+            );
         }
     }
 }
@@ -4288,15 +4816,28 @@ library SignatureCheckerUpgradeable {
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-        (address recovered, ECDSAUpgradeable.RecoverError error) = ECDSAUpgradeable.tryRecover(hash, signature);
-        if (error == ECDSAUpgradeable.RecoverError.NoError && recovered == signer) {
+        (
+            address recovered,
+            ECDSAUpgradeable.RecoverError error
+        ) = ECDSAUpgradeable.tryRecover(hash, signature);
+        if (
+            error == ECDSAUpgradeable.RecoverError.NoError &&
+            recovered == signer
+        ) {
             return true;
         }
 
         (bool success, bytes memory result) = signer.staticcall(
-            abi.encodeWithSelector(IERC1271Upgradeable.isValidSignature.selector, hash, signature)
+            abi.encodeWithSelector(
+                IERC1271Upgradeable.isValidSignature.selector,
+                hash,
+                signature
+            )
         );
-        return (success && result.length == 32 && abi.decode(result, (bytes4)) == IERC1271Upgradeable.isValidSignature.selector);
+        return (success &&
+            result.length == 32 &&
+            abi.decode(result, (bytes4)) ==
+            IERC1271Upgradeable.isValidSignature.selector);
     }
 }
 
@@ -4494,10 +5035,15 @@ interface IServiceManager is IServiceManagerUI {
      * @dev This function will revert if the `rewardsSubmission` is malformed,
      * e.g. if the `strategies` and `weights` arrays are of non-equal lengths
      */
-    function createAVSRewardsSubmission(IRewardsCoordinator.RewardsSubmission[] calldata rewardsSubmissions) external;
+    function createAVSRewardsSubmission(
+        IRewardsCoordinator.RewardsSubmission[] calldata rewardsSubmissions
+    ) external;
 
     // EVENTS
-    event RewardsInitiatorUpdated(address prevRewardsInitiator, address newRewardsInitiator);
+    event RewardsInitiatorUpdated(
+        address prevRewardsInitiator,
+        address newRewardsInitiator
+    );
 }
 
 // lib/eigenlayer-middleware/src/interfaces/IStakeRegistry.sol
@@ -4507,7 +5053,6 @@ interface IServiceManager is IServiceManagerUI {
  * @author Layr Labs, Inc.
  */
 interface IStakeRegistry is IRegistry {
-    
     // DATA STRUCTURES
 
     /// @notice struct used to store the stakes of an individual operator or the sum of all operators' stakes, for storage
@@ -4539,15 +5084,25 @@ interface IStakeRegistry is IRegistry {
         uint96 stake
     );
     /// @notice emitted when the minimum stake for a quorum is updated
-    event MinimumStakeForQuorumUpdated(uint8 indexed quorumNumber, uint96 minimumStake);
+    event MinimumStakeForQuorumUpdated(
+        uint8 indexed quorumNumber,
+        uint96 minimumStake
+    );
     /// @notice emitted when a new quorum is created
     event QuorumCreated(uint8 indexed quorumNumber);
     /// @notice emitted when `strategy` has been added to the array at `strategyParams[quorumNumber]`
     event StrategyAddedToQuorum(uint8 indexed quorumNumber, IStrategy strategy);
     /// @notice emitted when `strategy` has removed from the array at `strategyParams[quorumNumber]`
-    event StrategyRemovedFromQuorum(uint8 indexed quorumNumber, IStrategy strategy);
+    event StrategyRemovedFromQuorum(
+        uint8 indexed quorumNumber,
+        IStrategy strategy
+    );
     /// @notice emitted when `strategy` has its `multiplier` updated in the array at `strategyParams[quorumNumber]`
-    event StrategyMultiplierUpdated(uint8 indexed quorumNumber, IStrategy strategy, uint256 multiplier);
+    event StrategyMultiplierUpdated(
+        uint8 indexed quorumNumber,
+        IStrategy strategy,
+        uint256 multiplier
+    );
 
     /**
      * @notice Registers the `operator` with `operatorId` for the specified `quorumNumbers`.
@@ -4563,8 +5118,8 @@ interface IStakeRegistry is IRegistry {
      *         4) the operator is not already registered
      */
     function registerOperator(
-        address operator, 
-        bytes32 operatorId, 
+        address operator,
+        bytes32 operatorId,
         bytes memory quorumNumbers
     ) external returns (uint96[] memory, uint96[] memory);
 
@@ -4580,12 +5135,19 @@ interface IStakeRegistry is IRegistry {
      *         4) the operator is not already deregistered
      *         5) `quorumNumbers` is a subset of the quorumNumbers that the operator is registered for
      */
-    function deregisterOperator(bytes32 operatorId, bytes memory quorumNumbers) external;
+    function deregisterOperator(
+        bytes32 operatorId,
+        bytes memory quorumNumbers
+    ) external;
 
     /**
      * @notice Initialize a new quorum created by the registry coordinator by setting strategies, weights, and minimum stake
      */
-    function initializeQuorum(uint8 quorumNumber, uint96 minimumStake, StrategyParams[] memory strategyParams) external;
+    function initializeQuorum(
+        uint8 quorumNumber,
+        uint96 minimumStake,
+        StrategyParams[] memory strategyParams
+    ) external;
 
     /// @notice Adds new strategies and the associated multipliers to the @param quorumNumber.
     function addStrategies(
@@ -4599,7 +5161,10 @@ interface IStakeRegistry is IRegistry {
      * @dev higher indices should be *first* in the list of @param indicesToRemove, since otherwise
      * the removal of lower index entries will cause a shift in the indices of the other strategiesToRemove
      */
-    function removeStrategies(uint8 quorumNumber, uint256[] calldata indicesToRemove) external;
+    function removeStrategies(
+        uint8 quorumNumber,
+        uint256[] calldata indicesToRemove
+    ) external;
 
     /**
      * @notice This function is used for modifying the weights of strategies that are already in the
@@ -4621,10 +5186,14 @@ interface IStakeRegistry is IRegistry {
     function delegation() external view returns (IDelegationManager);
 
     /// @notice In order to register for a quorum i, an operator must have at least `minimumStakeForQuorum[i]`
-    function minimumStakeForQuorum(uint8 quorumNumber) external view returns (uint96);
+    function minimumStakeForQuorum(
+        uint8 quorumNumber
+    ) external view returns (uint96);
 
     /// @notice Returns the length of the dynamic array stored in `strategyParams[quorumNumber]`.
-    function strategyParamsLength(uint8 quorumNumber) external view returns (uint256);
+    function strategyParamsLength(
+        uint8 quorumNumber
+    ) external view returns (uint256);
 
     /// @notice Returns the strategy and weight multiplier for the `index`'th strategy in the quorum `quorumNumber`
     function strategyParamsByIndex(
@@ -4636,32 +5205,47 @@ interface IStakeRegistry is IRegistry {
      * @notice This function computes the total weight of the @param operator in the quorum @param quorumNumber.
      * @dev reverts in the case that `quorumNumber` is greater than or equal to `quorumCount`
      */
-    function weightOfOperatorForQuorum(uint8 quorumNumber, address operator) external view returns (uint96);
+    function weightOfOperatorForQuorum(
+        uint8 quorumNumber,
+        address operator
+    ) external view returns (uint96);
 
     /**
      * @notice Returns the entire `operatorIdToStakeHistory[operatorId][quorumNumber]` array.
      * @param operatorId The id of the operator of interest.
      * @param quorumNumber The quorum number to get the stake for.
      */
-    function getStakeHistory(bytes32 operatorId, uint8 quorumNumber) external view returns (StakeUpdate[] memory);
+    function getStakeHistory(
+        bytes32 operatorId,
+        uint8 quorumNumber
+    ) external view returns (StakeUpdate[] memory);
 
-    function getTotalStakeHistoryLength(uint8 quorumNumber) external view returns (uint256);
+    function getTotalStakeHistoryLength(
+        uint8 quorumNumber
+    ) external view returns (uint256);
 
     /**
      * @notice Returns the `index`-th entry in the dynamic array of total stake, `totalStakeHistory` for quorum `quorumNumber`.
      * @param quorumNumber The quorum number to get the stake for.
      * @param index Array index for lookup, within the dynamic array `totalStakeHistory[quorumNumber]`.
      */
-    function getTotalStakeUpdateAtIndex(uint8 quorumNumber, uint256 index) external view returns (StakeUpdate memory);
+    function getTotalStakeUpdateAtIndex(
+        uint8 quorumNumber,
+        uint256 index
+    ) external view returns (StakeUpdate memory);
 
     /// @notice Returns the indices of the operator stakes for the provided `quorumNumber` at the given `blockNumber`
-    function getStakeUpdateIndexAtBlockNumber(bytes32 operatorId, uint8 quorumNumber, uint32 blockNumber)
-        external
-        view
-        returns (uint32);
+    function getStakeUpdateIndexAtBlockNumber(
+        bytes32 operatorId,
+        uint8 quorumNumber,
+        uint32 blockNumber
+    ) external view returns (uint32);
 
     /// @notice Returns the indices of the total stakes for the provided `quorumNumbers` at the given `blockNumber`
-    function getTotalStakeIndicesAtBlockNumber(uint32 blockNumber, bytes calldata quorumNumbers) external view returns(uint32[] memory) ;
+    function getTotalStakeIndicesAtBlockNumber(
+        uint32 blockNumber,
+        bytes calldata quorumNumbers
+    ) external view returns (uint32[] memory);
 
     /**
      * @notice Returns the `index`-th entry in the `operatorIdToStakeHistory[operatorId][quorumNumber]` array.
@@ -4670,20 +5254,24 @@ interface IStakeRegistry is IRegistry {
      * @param index Array index for lookup, within the dynamic array `operatorIdToStakeHistory[operatorId][quorumNumber]`.
      * @dev Function will revert if `index` is out-of-bounds.
      */
-    function getStakeUpdateAtIndex(uint8 quorumNumber, bytes32 operatorId, uint256 index)
-        external
-        view
-        returns (StakeUpdate memory);
+    function getStakeUpdateAtIndex(
+        uint8 quorumNumber,
+        bytes32 operatorId,
+        uint256 index
+    ) external view returns (StakeUpdate memory);
 
     /**
      * @notice Returns the most recent stake weight for the `operatorId` for a certain quorum
      * @dev Function returns an StakeUpdate struct with **every entry equal to 0** in the event that the operator has no stake history
      */
-    function getLatestStakeUpdate(bytes32 operatorId, uint8 quorumNumber) external view returns (StakeUpdate memory);
+    function getLatestStakeUpdate(
+        bytes32 operatorId,
+        uint8 quorumNumber
+    ) external view returns (StakeUpdate memory);
 
     /**
      * @notice Returns the stake weight corresponding to `operatorId` for quorum `quorumNumber`, at the
-     * `index`-th entry in the `operatorIdToStakeHistory[operatorId][quorumNumber]` array if the entry 
+     * `index`-th entry in the `operatorIdToStakeHistory[operatorId][quorumNumber]` array if the entry
      * corresponds to the operator's stake at `blockNumber`. Reverts otherwise.
      * @param quorumNumber The quorum number to get the stake for.
      * @param operatorId The id of the operator of interest.
@@ -4692,14 +5280,16 @@ interface IStakeRegistry is IRegistry {
      * @dev Function will revert if `index` is out-of-bounds.
      * @dev used the BLSSignatureChecker to get past stakes of signing operators
      */
-    function getStakeAtBlockNumberAndIndex(uint8 quorumNumber, uint32 blockNumber, bytes32 operatorId, uint256 index)
-        external
-        view
-        returns (uint96);
+    function getStakeAtBlockNumberAndIndex(
+        uint8 quorumNumber,
+        uint32 blockNumber,
+        bytes32 operatorId,
+        uint256 index
+    ) external view returns (uint96);
 
     /**
-     * @notice Returns the total stake weight for quorum `quorumNumber`, at the `index`-th entry in the 
-     * `totalStakeHistory[quorumNumber]` array if the entry corresponds to the total stake at `blockNumber`. 
+     * @notice Returns the total stake weight for quorum `quorumNumber`, at the `index`-th entry in the
+     * `totalStakeHistory[quorumNumber]` array if the entry corresponds to the total stake at `blockNumber`.
      * Reverts otherwise.
      * @param quorumNumber The quorum number to get the stake for.
      * @param index Array index for lookup, within the dynamic array `totalStakeHistory[quorumNumber]`.
@@ -4707,25 +5297,35 @@ interface IStakeRegistry is IRegistry {
      * @dev Function will revert if `index` is out-of-bounds.
      * @dev used the BLSSignatureChecker to get past stakes of signing operators
      */
-    function getTotalStakeAtBlockNumberFromIndex(uint8 quorumNumber, uint32 blockNumber, uint256 index) external view returns (uint96);
+    function getTotalStakeAtBlockNumberFromIndex(
+        uint8 quorumNumber,
+        uint32 blockNumber,
+        uint256 index
+    ) external view returns (uint96);
 
     /**
      * @notice Returns the most recent stake weight for the `operatorId` for quorum `quorumNumber`
      * @dev Function returns weight of **0** in the event that the operator has no stake history
      */
-    function getCurrentStake(bytes32 operatorId, uint8 quorumNumber) external view returns (uint96);
+    function getCurrentStake(
+        bytes32 operatorId,
+        uint8 quorumNumber
+    ) external view returns (uint96);
 
     /// @notice Returns the stake of the operator for the provided `quorumNumber` at the given `blockNumber`
-    function getStakeAtBlockNumber(bytes32 operatorId, uint8 quorumNumber, uint32 blockNumber)
-        external
-        view
-        returns (uint96);
+    function getStakeAtBlockNumber(
+        bytes32 operatorId,
+        uint8 quorumNumber,
+        uint32 blockNumber
+    ) external view returns (uint96);
 
     /**
      * @notice Returns the stake weight from the latest entry in `_totalStakeHistory` for quorum `quorumNumber`.
      * @dev Will revert if `_totalStakeHistory[quorumNumber]` is empty.
      */
-    function getCurrentTotalStake(uint8 quorumNumber) external view returns (uint96);
+    function getCurrentTotalStake(
+        uint8 quorumNumber
+    ) external view returns (uint96);
 
     /**
      * @notice Called by the registry coordinator to update an operator's stake for one
@@ -4737,8 +5337,8 @@ interface IStakeRegistry is IRegistry {
      * and should be deregistered.
      */
     function updateOperatorStake(
-        address operator, 
-        bytes32 operatorId, 
+        address operator,
+        bytes32 operatorId,
         bytes calldata quorumNumbers
     ) external returns (uint192);
 }
@@ -5050,7 +5650,13 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
     /**
      * @dev Returns the current implementation address.
      */
-    function _implementation() internal view virtual override returns (address impl) {
+    function _implementation()
+        internal
+        view
+        virtual
+        override
+        returns (address impl)
+    {
         return ERC1967Upgrade._getImplementation();
     }
 }
@@ -5126,7 +5732,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
-    function implementation() external ifAdmin returns (address implementation_) {
+    function implementation()
+        external
+        ifAdmin
+        returns (address implementation_)
+    {
         implementation_ = _implementation();
     }
 
@@ -5157,7 +5767,10 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
+    function upgradeToAndCall(
+        address newImplementation,
+        bytes calldata data
+    ) external payable ifAdmin {
         _upgradeToAndCall(newImplementation, data, true);
     }
 
@@ -5172,7 +5785,10 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
      */
     function _beforeFallback() internal virtual override {
-        require(msg.sender != _getAdmin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
+        require(
+            msg.sender != _getAdmin(),
+            "TransparentUpgradeableProxy: admin cannot fallback to proxy target"
+        );
         super._beforeFallback();
     }
 }
@@ -6397,4 +7013,3 @@ contract HelloWorldServiceManager is
         return indexToAuditReports[taskIndex];
     }
 }
-
