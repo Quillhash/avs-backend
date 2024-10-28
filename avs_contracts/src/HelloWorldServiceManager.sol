@@ -104,6 +104,7 @@ contract HelloWorldServiceManager is
     ) external returns (Task memory) {
         address contractAddress = getSubmission(_submissionId).contractAddress;
         createPolicy(_submissionId, _coverageAmount, _duration);
+        payPremium(_submissionId);
         // create a new task struct
         Task memory insuranceTask;
         insuranceTask.contractAddress = contractAddress;
