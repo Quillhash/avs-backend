@@ -13,12 +13,14 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@eigenlayer/contracts/interfaces/IRewardsCoordinator.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {QuillInsurance} from "./QuillInsurance.sol";
+import {OperatorAllowlist} from "./OperatorAllowlist.sol";
 
 /**
  * @title Primary entrypoint for procuring services from HelloWorld.
  * @author Eigen Labs, Inc.
  */
 contract HelloWorldServiceManager is
+    OperatorAllowlist,
     ECDSAServiceManagerBase,
     QuillInsurance,
     IHelloWorldServiceManager
