@@ -42,7 +42,7 @@ const ecdsaRegistryContract = new ethers.Contract(ecdsaStakeRegistryAddress, ecd
 const avsDirectory = new ethers.Contract(avsDirectoryAddress, avsDirectoryABI, wallet);
 
 
-const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string) => {
+const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, score: string) => {
     try {
     const messageHash = ethers.solidityPackedKeccak256(["string"], [ipfs]);
     const messageBytes = ethers.getBytes(messageHash);
@@ -63,7 +63,8 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string) 
         },
         ipfs,
         taskIndex,
-        signedTask
+        signedTask,
+        Math.floor(parseFloat(score))
     );
     await tx.wait();
     } catch (e: any) {
@@ -74,15 +75,19 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string) 
 const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, approval: boolean) => {
     try {
 
+    const taskStruct = {
+        contractAddress: task[0],         // Address as string
+        taskCreatedBlock: task[1],        // Block number, likely BigInt
+        createdBy: task[2]                // Address as string
+    };
+
+    // Call the verifyAuditReport function
     const tx = await helloWorldServiceManager.verifyAuditReport(
-        {
-            contractAddress: task[0],
-            taskCreatedBlock: task[1],
-            createdBy: task[2]
-        },
+        taskStruct,
         taskIndex,
         approval
     );
+
     await tx.wait();
     } catch (e: any) {
         throw new Error(e.message);
@@ -146,9 +151,6 @@ const registerOperator = async () => {
 };
 
 const monitorNewTasks = async () => {
-    
-    const tx = await helloWorldServiceManager.createNewAuditTask('0x7CBb95D1E1AB0740cD54726c4aad266e1aF2083b');
-    const receipt = await tx.wait();
     helloWorldServiceManager.on("AuditTaskCreated", async (taskIndex: number, task: any) => {
             try {
 
@@ -158,7 +160,7 @@ const monitorNewTasks = async () => {
                 "pinata_api_key": `${process.env.PINATA_CLOUD_API_KEY}`,
                 "pinata_secret_api_key": `${process.env.PINATA_CLOUD_SECRET_KEY}`,
             },);
-            await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash);
+            await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash, audit?.auditReport?.securityScore || 0);
             
         } catch (e) {
             console.log(e);

@@ -21,10 +21,8 @@ interface IHelloWorldServiceManager {
     );
 
     event AuditReportVerified(
-        uint32 indexed taskIndex,
         address indexed contractAddress,
-        address indexed operator,
-        address verifier,
+        uint32 indexed taskIndex,
         bool approved
     );
 

@@ -59,7 +59,7 @@ contract QuillAIReports is Initializable, ClaimApproval {
         address[] memory _owners,
         uint256 _requiredApprovals,
         address _quillTokenAddress
-    ) public initializer {
+    ) internal initializer {
         quillToken = IQuillToken(_quillTokenAddress);
         owners = _owners;
         requiredApprovals = _requiredApprovals;
@@ -77,7 +77,7 @@ contract QuillAIReports is Initializable, ClaimApproval {
         address _contractAddress,
         bool _proxyContract
     ) internal {
-        quillToken.transferFrom(msg.sender, address(this), 100 ether);
+        quillToken.transferFrom(msg.sender, address(this), 100);
         submissionCounter++;
         userToReportsNum[msg.sender].push(submissionCounter);
         submissions[submissionCounter] = Submission({
