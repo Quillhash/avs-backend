@@ -5,9 +5,8 @@ pragma solidity 0.8.26;
 // import "@openzeppelin/contracts/access/AccessControl.sol";
 import {IQuillToken} from "./interfaces/IQuillToken.sol";
 import {ClaimApproval} from "./ClaimApproval.sol";
-import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 
-contract QuillAIReports is Initializable, ClaimApproval {
+contract QuillAIReports is ClaimApproval {
     struct Submission {
         address owner;
         address contractAddress;
@@ -21,8 +20,8 @@ contract QuillAIReports is Initializable, ClaimApproval {
         uint8 riskScore; // Risk score between 0-100
         uint256 timestamp;
     }
-    IQuillToken public quillToken;
-    address public quillTokenSetter;
+    IQuillToken public quillToken =
+        IQuillToken(0x7607C082538c187F9050e23680D52B7EFC190011);
 
     // Mapping from submission ID to Submission details
     mapping(uint256 => Submission) public submissions;
@@ -48,25 +47,6 @@ contract QuillAIReports is Initializable, ClaimApproval {
     );
 
     constructor() {}
-
-    /**
-     * @dev Initializes the contract with a list of owners and the number of required approvals.
-     * @param _owners The addresses of the owners.
-     * @param _requiredApprovals The number of approvals required to approve a claim.
-     * @param _quillTokenAddress addresss of quill token
-     */
-    function initialize(
-        address[] memory _owners,
-        uint256 _requiredApprovals,
-        address _quillTokenAddress
-    ) internal initializer {
-        quillToken = IQuillToken(_quillTokenAddress);
-        owners = _owners;
-        requiredApprovals = _requiredApprovals;
-        for (uint256 i = 0; i < _owners.length; i++) {
-            isOwner[_owners[i]] = true;
-        }
-    }
 
     /**
      * @dev Allows a smart contract owner to submit their contract for auditing.

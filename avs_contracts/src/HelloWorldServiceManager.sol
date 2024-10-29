@@ -1,5 +1,40 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+//   ____          _  _  _             _____   _   _        _                           _
+//  / __ \        (_)| || |     /\    |_   _| | \ | |      | |                         | |
+// | |  | | _   _  _ | || |    /  \     | |   |  \| |  ___ | |_ __      __  ___   _ __ | | __
+// | |  | || | | || || || |   / /\ \    | |   | . ` | / _ \| __|\ \ /\ / / / _ \ | '__|| |/ /
+// | |__| || |_| || || || |  / ____ \  _| |_  | |\  ||  __/| |_  \ V  V / | (_) || |   |   <
+//  \___\_\ \__,_||_||_||_| /_/    \_\|_____| |_| \_| \___| \__|  \_/\_/   \___/ |_|   |_|\_\
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#**#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-..+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*=.   =%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@#=.    :#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@#-      :#@@@@@@@@@@@%#+=--------==+*%@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@+.      .*@@@@@@@@@@@@@@@@@@@-.          .-+%@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@+        :%@@@@@@@@@@@@@@@@@@@@@@#-            :*@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@#.        :@@@@@@@@@@@@@@@@@@@@@@@@@@*             .#@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@=          #@@@@@@@@@@@@@@@@@@@@@@@@@@@=              #@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@+          :@@@@@@@@@@@@@@@@@@@@@@@@@@@@#               %@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@%           -@@@@%@@@@@@@@@@@@@@@@@%@@@@@*               -@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@=           :@@@@+.---------------:=@@@@@-                @@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@:            %@@@+                 =@@@@#                 @@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@-            -@@@+:+++++++++++++++-=@@@%.                =@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@*             =@@@@@@@@@@@@@@@@@@@@@@@%.                -@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@:             -@@@@@@@@@@@@@@@@@@@@@#                 =@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@%.             .%@@@@@@@@@@@@@@@@@@+                .#@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@=              =@@@@@@@@@@@@@@@%:               .*@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@#:             .+@@@@@@@@@@@@+               =#@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@#:             .+@@@@@@@@#.             -#@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@#-             .+@@@@%-           :+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@*-             -*-        :=+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#=:              .:=*%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*=:          .=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-.         -*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#+-:       :=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%#+=:.    :+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*+=:. :=*%@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#*++*#@@@@@@@@@@@@@@@@@@@@@
 
 import {ECDSAServiceManagerBase} from "@eigenlayer-middleware/src/unaudited/ECDSAServiceManagerBase.sol";
 import {ECDSAStakeRegistry} from "@eigenlayer-middleware/src/unaudited/ECDSAStakeRegistry.sol";
@@ -74,14 +109,6 @@ contract HelloWorldServiceManager is
         )
     {}
 
-    function init(
-        address[] calldata _owners,
-        uint256 _requiredApprovals,
-        address _quillTokenAddress
-    ) public {
-        initialize(_owners, _requiredApprovals, _quillTokenAddress);
-    }
-
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId
     function createNewAuditTask(
@@ -102,35 +129,6 @@ contract HelloWorldServiceManager is
         latestTaskNum += 1;
 
         return auditTask;
-    }
-
-    /* FUNCTIONS */
-    // NOTE: this function creates new audit task, assigns it a taskId
-    function createNewInsuranceTask(
-        // address contractAddress
-        uint256 _submissionId,
-        uint256 _coverageAmount,
-        uint256 _duration
-    ) external returns (Task memory) {
-        address contractAddress = getSubmission(_submissionId).contractAddress;
-        createPolicy(_submissionId, _coverageAmount, _duration);
-        payPremium(_submissionId);
-        // create a new task struct
-        Task memory insuranceTask;
-        insuranceTask.contractAddress = contractAddress;
-        insuranceTask.taskCreatedBlock = uint32(block.number);
-        insuranceTask.createdBy = msg.sender;
-
-        // store hash of task onchain, emit event, and increase taskNum
-        // allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
-        allTaskHashes[uint32(_submissionId)] = keccak256(
-            abi.encode(insuranceTask)
-        );
-        // emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
-        emit InsuranceTaskCreated(uint32(_submissionId), insuranceTask);
-        // latestTaskNum += 1;
-
-        return insuranceTask;
     }
 
     function respondToAuditTask(
@@ -174,6 +172,77 @@ contract HelloWorldServiceManager is
 
         // emitting event
         emit AuditTaskResponded(referenceTaskIndex, task, msg.sender, ipfs);
+    }
+
+    function verifyAuditReport(
+        Task calldata task,
+        uint32 referenceTaskIndex,
+        bool approval
+    ) external onlyOperator {
+        require(
+            keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
+            "supplied task does not match the one recorded in the contract"
+        );
+
+        // Check if the operator has responded to this task
+        require(
+            bytes(indexToAuditReports[referenceTaskIndex]).length != 0,
+            "Operator has not responded"
+        );
+
+        // Check if the verifier has already verified this operator's response
+        require(
+            !hasVerified[referenceTaskIndex][msg.sender],
+            "Already verified"
+        );
+
+        // Mark as verified
+        hasVerified[referenceTaskIndex][msg.sender] = true;
+
+        // Update approval or disapproval count
+        if (approval) {
+            approvals[referenceTaskIndex] += 1;
+        } else {
+            disapprovals[referenceTaskIndex] += 1;
+        }
+
+        // Emit verification event
+        emit AuditReportVerified(
+            task.contractAddress,
+            referenceTaskIndex,
+            // operator,
+            // msg.sender,
+            approval
+        );
+    }
+
+    /* FUNCTIONS */
+    // NOTE: this function creates new audit task, assigns it a taskId
+    function createNewInsuranceTask(
+        // address contractAddress
+        uint256 _submissionId,
+        uint256 _coverageAmount,
+        uint256 _duration
+    ) external returns (Task memory) {
+        address contractAddress = getSubmission(_submissionId).contractAddress;
+        createPolicy(_submissionId, _coverageAmount, _duration);
+        payPremium(_submissionId);
+        // create a new task struct
+        Task memory insuranceTask;
+        insuranceTask.contractAddress = contractAddress;
+        insuranceTask.taskCreatedBlock = uint32(block.number);
+        insuranceTask.createdBy = msg.sender;
+
+        // store hash of task onchain, emit event, and increase taskNum
+        // allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
+        allTaskHashes[uint32(_submissionId)] = keccak256(
+            abi.encode(insuranceTask)
+        );
+        // emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
+        emit InsuranceTaskCreated(uint32(_submissionId), insuranceTask);
+        // latestTaskNum += 1;
+
+        return insuranceTask;
     }
 
     function respondToInsuranceTask(
@@ -221,46 +290,63 @@ contract HelloWorldServiceManager is
         //emit AuditTaskResponded(referenceTaskIndex, task, msg.sender);
     }
 
-    function verifyAuditReport(
-        Task calldata task,
-        uint32 referenceTaskIndex,
-        bool approval
-    ) external onlyOperator {
+    /**
+     * @dev Allows the policy owner to file a claim.
+     * @param _policyId ID of the policy.
+     * @param _evidenceIPFSHash IPFS hash of the evidence supporting the claim.
+     */
+    function fileClaim(
+        uint256 _policyId,
+        string memory _evidenceIPFSHash
+    ) public {
+        Policy storage policy = policies[_policyId];
         require(
-            keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
-            "supplied task does not match the one recorded in the contract"
+            msg.sender == policy.owner,
+            "Only policy owner can file a claim"
         );
+        require(policy.status == PolicyStatus.Active, "Policy is not active");
+        require(block.timestamp <= policy.endTime, "Policy has expired");
 
-        // Check if the operator has responded to this task
-        require(
-            bytes(indexToAuditReports[referenceTaskIndex]).length != 0,
-            "Operator has not responded"
-        );
+        uint256 claimId = _policyId; // For simplicity, use policyId as claimId
+        claims[claimId] = Claim({
+            claimId: claimId,
+            policyId: _policyId,
+            evidenceIPFSHash: _evidenceIPFSHash,
+            timestamp: block.timestamp,
+            processed: false,
+            approved: false
+        });
 
-        // Check if the verifier has already verified this operator's response
-        require(
-            !hasVerified[referenceTaskIndex][msg.sender],
-            "Already verified"
-        );
+        policy.status = PolicyStatus.ClaimFiled;
 
-        // Mark as verified
-        hasVerified[referenceTaskIndex][msg.sender] = true;
+        emit ClaimFiled(claimId, _policyId, _evidenceIPFSHash, block.timestamp);
+    }
 
-        // Update approval or disapproval count
-        if (approval) {
-            approvals[referenceTaskIndex] += 1;
+    /**
+     * @dev Allows the operator to process a claim.
+     * @param _claimId ID of the claim.
+     */
+    function processClaim(uint256 _claimId) public onlyOperator {
+        require(claimApprove[_claimId], "Claim is not approved");
+        Claim storage claim = claims[_claimId];
+        Policy storage policy = policies[claim.policyId];
+
+        require(!claim.processed, "Claim already processed");
+
+        claim.processed = true;
+        claim.approved = true;
+
+        if (true) {
+            policy.status = PolicyStatus.ClaimApproved;
+            // Payout the coverage amount to the policy owner
+            quillToken.transfer(policy.owner, policy.coverageAmount);
+
+            emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
         } else {
-            disapprovals[referenceTaskIndex] += 1;
+            policy.status = PolicyStatus.ClaimDenied;
         }
 
-        // Emit verification event
-        emit AuditReportVerified(
-            task.contractAddress,
-            referenceTaskIndex,
-            // operator,
-            // msg.sender,
-            approval
-        );
+        emit ClaimProcessed(_claimId, claim.policyId, true);
     }
 
     // Getter functions for approvals and disapprovals per task index (per audit report)

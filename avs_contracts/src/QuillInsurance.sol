@@ -179,65 +179,6 @@ contract QuillInsurance is QuillAIReports {
     }
 
     /**
-     * @dev Allows the policy owner to file a claim.
-     * @param _policyId ID of the policy.
-     * @param _evidenceIPFSHash IPFS hash of the evidence supporting the claim.
-     */
-    function fileClaim(
-        uint256 _policyId,
-        string memory _evidenceIPFSHash
-    ) public {
-        Policy storage policy = policies[_policyId];
-        require(
-            msg.sender == policy.owner,
-            "Only policy owner can file a claim"
-        );
-        require(policy.status == PolicyStatus.Active, "Policy is not active");
-        require(block.timestamp <= policy.endTime, "Policy has expired");
-
-        uint256 claimId = _policyId; // For simplicity, use policyId as claimId
-        claims[claimId] = Claim({
-            claimId: claimId,
-            policyId: _policyId,
-            evidenceIPFSHash: _evidenceIPFSHash,
-            timestamp: block.timestamp,
-            processed: false,
-            approved: false
-        });
-
-        policy.status = PolicyStatus.ClaimFiled;
-
-        emit ClaimFiled(claimId, _policyId, _evidenceIPFSHash, block.timestamp);
-    }
-
-    /**
-     * @dev Allows the insurer to process a claim.
-     * @param _claimId ID of the claim.
-     */
-    function processClaim(uint256 _claimId) public {
-        require(claimApprove[_claimId], "Claim is not approved");
-        Claim storage claim = claims[_claimId];
-        Policy storage policy = policies[claim.policyId];
-
-        require(!claim.processed, "Claim already processed");
-
-        claim.processed = true;
-        claim.approved = true;
-
-        if (true) {
-            policy.status = PolicyStatus.ClaimApproved;
-            // Payout the coverage amount to the policy owner
-            quillToken.transfer(policy.owner, policy.coverageAmount);
-
-            emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
-        } else {
-            policy.status = PolicyStatus.ClaimDenied;
-        }
-
-        emit ClaimProcessed(_claimId, claim.policyId, true);
-    }
-
-    /**
      * @dev Allows the insurer to update policy status, e.g., set to expired.
      * @param _policyId ID of the policy.
      * @param _status New status of the policy.
