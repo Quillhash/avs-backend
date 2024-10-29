@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Script.sol";
-import {QuillToken} from "../src/QuillToken.sol";
+import {HelloWorldServiceManager} from "../src/qsInsurance.sol";
 
 contract Deploy is Script {
     function run() public {
@@ -16,7 +16,12 @@ contract Deploy is Script {
         vm.startBroadcast(privateKey);
 
         // Deploy the QuillToken contract
-        QuillToken quillToken = new QuillToken(1000000000000000000000000);
+        HelloWorldServiceManager quillToken = new HelloWorldServiceManager(
+            0x055733000064333CaDDbC92763c58BF0192fFeBf,
+            address(0),
+            0xAcc1fb458a1317E886dB376Fc8141540537E68fE,
+            0xA44151489861Fe9e3055d95adC98FbD462B948e7
+        );
 
         // Stop broadcasting transactions
         vm.stopBroadcast();
