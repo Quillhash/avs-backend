@@ -111,7 +111,13 @@ contract HelloWorldServiceManager is
         )
     {}
 
-    function initialize() public initializer {}
+     function initialize(address initialOwner_, address rewardsInitiator_, address allowlistManager_)
+        external
+        initializer
+    {
+        __ServiceManagerBase_init(initialOwner_, rewardsInitiator_);
+        __OperatorAllowlist_init(allowlistManager_, true);
+    }
 
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId
