@@ -17,8 +17,7 @@ contract QuillInsurance is QuillAIReports {
         Inactive,
         Active,
         ClaimFiled,
-        ClaimApproved,
-        ClaimDenied
+        ClaimApproved
     }
 
     struct Policy {

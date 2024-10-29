@@ -111,10 +111,11 @@ contract HelloWorldServiceManager is
         )
     {}
 
-     function initialize(address initialOwner_, address rewardsInitiator_, address allowlistManager_)
-        external
-        initializer
-    {
+    function initialize(
+        address initialOwner_,
+        address rewardsInitiator_,
+        address allowlistManager_
+    ) external initializer {
         __ServiceManagerBase_init(initialOwner_, rewardsInitiator_);
         __OperatorAllowlist_init(allowlistManager_, true);
     }
@@ -337,7 +338,6 @@ contract HelloWorldServiceManager is
      * @param _claimId ID of the claim.
      */
     function processClaim(uint256 _claimId) public onlyOperator {
-        require(claimApprove[_claimId], "Claim is not approved");
         Claim storage claim = claims[_claimId];
         Policy storage policy = policies[claim.policyId];
 
@@ -346,15 +346,11 @@ contract HelloWorldServiceManager is
         claim.processed = true;
         claim.approved = true;
 
-        if (true) {
-            policy.status = PolicyStatus.ClaimApproved;
-            // Payout the coverage amount to the policy owner
-            quillToken.transfer(policy.owner, policy.coverageAmount);
+        policy.status = PolicyStatus.ClaimApproved;
+        // Payout the coverage amount to the policy owner
+        quillToken.transfer(policy.owner, policy.coverageAmount);
 
-            emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
-        } else {
-            policy.status = PolicyStatus.ClaimDenied;
-        }
+        emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
 
         emit ClaimProcessed(_claimId, claim.policyId, true);
     }
