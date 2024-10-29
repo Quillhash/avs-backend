@@ -49,12 +49,14 @@ import "@eigenlayer/contracts/interfaces/IRewardsCoordinator.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {QuillInsurance} from "./QuillInsurance.sol";
 import {OperatorAllowlist} from "./OperatorAllowlist.sol";
+import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title Primary entrypoint for procuring services from HelloWorld.
  * @author Eigen Labs, Inc.
  */
 contract HelloWorldServiceManager is
+    Initializable,
     OperatorAllowlist,
     ECDSAServiceManagerBase,
     QuillInsurance,
@@ -96,18 +98,20 @@ contract HelloWorldServiceManager is
     }
 
     constructor(
-        address _avsDirectory,
-        address _stakeRegistry,
-        address _rewardsCoordinator,
-        address _delegationManager
+        address __avsDirectory,
+        address __stakeRegistry,
+        address __rewardsCoordinator,
+        address __delegationManager
     )
         ECDSAServiceManagerBase(
-            _avsDirectory,
-            _stakeRegistry,
-            _rewardsCoordinator,
-            _delegationManager
+            __avsDirectory,
+            __stakeRegistry,
+            __rewardsCoordinator,
+            __delegationManager
         )
     {}
+
+    function initialize() public initializer {}
 
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId

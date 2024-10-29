@@ -48,8 +48,8 @@ $ anvil
 ### Deploy
 
 ```shell
-SEPOLIA_RPC_URL=https://rpc.ankr.com/eth_holesky/api-key
-$ forge script script/SetupPayments.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify -vvvv
+SEPOLIA_RPC_URL=https://rpc.ankr.com/eth_holesky/12d247b0e33c7b6fe4c2043571ba62f08ea3dbf97a4e7e44cc568841c1f260c7
+$ forge script script/DeployToken.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify -vvvv
 ```
 
 ### Cast
