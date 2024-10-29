@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Event Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        #eventContainer {
+            width: 300px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        #events {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .event {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #e8e8e8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="eventContainer">
+        <h2>Contract Events</h2>
+        <div id="events">
+            <!-- Events will appear here -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

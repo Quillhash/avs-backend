@@ -3,29 +3,30 @@ import * as dotenv from "dotenv";
 import apiCallHelper from "./helpers/apiCallHelper";
 const fs = require('fs');
 const path = require('path');
-dotenv.config();
+dotenv.config({path:'./operator/.env'});
 
 // Check if the process.env object is empty
 if (!Object.keys(process.env).length) {
     throw new Error("process.env object is empty");
 }
 
+console.log(process.env.PRIVATE_KEY);
 // Setup env variables
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const provider = new ethers.JsonRpcProvider(process.env.HOLESKY_RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
 /// TODO: Hack
-let chainId = 31337;
+let chainId = 17000;
 
 const avsDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/hello-world/${chainId}.json`), 'utf8'));
 // Load core deployment data
 const coreDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/core/${chainId}.json`), 'utf8'));
 
 
-const delegationManagerAddress = coreDeploymentData.addresses.delegation; // todo: reminder to fix the naming of this contract in the deployment file, change to delegationManager
-const avsDirectoryAddress = coreDeploymentData.addresses.avsDirectory;
-const helloWorldServiceManagerAddress = avsDeploymentData.addresses.helloWorldServiceManager;
-const ecdsaStakeRegistryAddress = avsDeploymentData.addresses.stakeRegistry;
+const delegationManagerAddress = process.env.DELEGATION_MANAGER!; // todo: reminder to fix the naming of this contract in the deployment file, change to delegationManager
+const avsDirectoryAddress = process.env.AVS_DIRECTORY!;
+const helloWorldServiceManagerAddress = process.env.AVS_SERVICE_MANAGER_PROXY!;
+const ecdsaStakeRegistryAddress = process.env.ECDSA_STAKE_REGISTRY!;
 
 
 
@@ -97,6 +98,8 @@ const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, a
 
 const registerOperator = async () => {
     
+
+    console.log('Attempting to Register Operator')
     // Registers as an Operator in EigenLayer.
     try {
         const tx1 = await delegationManager.registerAsOperator({
@@ -195,14 +198,14 @@ const monitorVerifyAuditReport = async () => {
 };
 
 const main = async () => {
-    // await registerOperator();
-    monitorNewTasks().catch((error) => {
-        console.error("Error monitoring tasks:", error);
-    });
-    monitorVerifyAuditReport().catch((error) => {
-        console.error("Error monitoring Verify Audit Tasks:", error);
-    });
- };
+     await registerOperator();
+    // monitorNewTasks().catch((error) => {
+    //     console.error("Error monitoring tasks:", error);
+    // });
+    // monitorVerifyAuditReport().catch((error) => {
+    //     console.error("Error monitoring Verify Audit Tasks:", error);
+    // });
+};
 
 main().catch((error) => {
     console.error("Error in main function:", error);
