@@ -6677,6 +6677,7 @@ abstract contract ECDSAServiceManagerBase is
  * @author Eigen Labs, Inc.
  */
 contract HelloWorldServiceManager is
+    Initializable,
     OperatorAllowlist,
     ECDSAServiceManagerBase,
     QuillInsurance,
@@ -6730,6 +6731,14 @@ contract HelloWorldServiceManager is
             __delegationManager
         )
     {}
+
+     function initialize(address initialOwner_, address rewardsInitiator_, address allowlistManager_)
+        external
+        initializer
+    {
+        __ServiceManagerBase_init(initialOwner_, rewardsInitiator_);
+        __OperatorAllowlist_init(allowlistManager_, true);
+    }
 
     /* FUNCTIONS */
     // NOTE: this function creates new audit task, assigns it a taskId
