@@ -7185,7 +7185,6 @@ contract HelloWorldServiceManager is
     function createNewAuditTask(
         address contractAddress
     ) external returns (Task memory) {
-        latestTaskNum += 1;
         submitContract(contractAddress, false);
         // create a new task struct
         Task memory auditTask;
@@ -7198,6 +7197,7 @@ contract HelloWorldServiceManager is
 
         // emit audit task event
         emit AuditTaskCreated(latestTaskNum, auditTask);
+        latestTaskNum += 1;
 
         return auditTask;
     }
@@ -7306,9 +7306,9 @@ contract HelloWorldServiceManager is
 
         // store hash of task onchain, emit event, and increase taskNum
         // allTaskHashes[latestTaskNum] = keccak256(abi.encode(insuranceTask));
-        // allTaskHashes[uint32(_submissionId)] = keccak256(
-        //     abi.encode(insuranceTask)
-        // );
+        allTaskHashes[uint32(_submissionId)] = keccak256(
+            abi.encode(insuranceTask)
+        );
         // emit InsuranceTaskCreated(latestTaskNum, insuranceTask);
         emit InsuranceTaskCreated(uint32(_submissionId), insuranceTask);
         // latestTaskNum += 1;
@@ -7324,8 +7324,12 @@ contract HelloWorldServiceManager is
     ) external onlyOperator {
         // check that the task is valid, hasn't been responsed yet, and is being responded in time
         require(
-            policies[referenceTaskIndex].owner != address(0),
-            "policy has not created"
+            keccak256(abi.encode(task)) == allTaskHashes[referenceTaskIndex],
+            "supplied task does not match the one recorded in the contract"
+        );
+        require(
+            !insuranceTaskCheck[referenceTaskIndex],
+            "Operator has already responded to the task"
         );
 
         // // The message that was signed
@@ -7366,10 +7370,6 @@ contract HelloWorldServiceManager is
         uint256 _policyId,
         string memory _evidenceIPFSHash
     ) public {
-        require(
-            insuranceTaskCheck[uint32(_policyId)],
-            "operator not approved insurance"
-        );
         Policy storage policy = policies[_policyId];
         // require(
         //     msg.sender == policy.owner,
