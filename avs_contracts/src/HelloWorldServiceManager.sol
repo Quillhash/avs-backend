@@ -86,6 +86,7 @@ contract HelloWorldServiceManager is
     // Approval and disapproval counts per task index
     mapping(uint32 => uint256) public approvals; // taskIndex => approval count
     mapping(uint32 => uint256) public disapprovals; // taskIndex => disapproval count
+    mapping(uint32 => bool) public insuranceTaskCheck;
 
     // Tracks if a verifier has already verified a task
     mapping(uint32 => mapping(address => bool)) public hasVerified; // taskIndex => verifier => bool
@@ -269,7 +270,7 @@ contract HelloWorldServiceManager is
             "supplied task does not match the one recorded in the contract"
         );
         require(
-            allTaskResponses[referenceTaskIndex].length == 0,
+            !insuranceTaskCheck[referenceTaskIndex],
             "Operator has already responded to the task"
         );
 
@@ -282,7 +283,7 @@ contract HelloWorldServiceManager is
         // }
 
         // updating the storage with task responses
-        allTaskResponses[referenceTaskIndex] = signature;
+        insuranceTaskCheck[referenceTaskIndex] = approved;
 
         if (!approved) {
             uint256 premium = getPolicy(uint256(referenceTaskIndex))
@@ -312,12 +313,12 @@ contract HelloWorldServiceManager is
         string memory _evidenceIPFSHash
     ) public {
         Policy storage policy = policies[_policyId];
-        require(
-            msg.sender == policy.owner,
-            "Only policy owner can file a claim"
-        );
-        require(policy.status == PolicyStatus.Active, "Policy is not active");
-        require(block.timestamp <= policy.endTime, "Policy has expired");
+        // require(
+        //     msg.sender == policy.owner,
+        //     "Only policy owner can file a claim"
+        // );
+        // require(policy.status == PolicyStatus.Active, "Policy is not active");
+        // require(block.timestamp <= policy.endTime, "Policy has expired");
 
         uint256 claimId = _policyId; // For simplicity, use policyId as claimId
         claims[claimId] = Claim({
