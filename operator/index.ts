@@ -12,8 +12,13 @@ if (!Object.keys(process.env).length) {
 
 // Setup env variables
 const provider = new ethers.JsonRpcProvider(process.env.HOLESKY_RPC_URL);
+
+const provider2 = new ethers.JsonRpcProvider(process.env.INFURA_RPC);
+
+
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
+const wallet2 = new ethers.Wallet(process.env.PRIVATE_KEY!, provider2);
 
 let chainId = 17000;
 
@@ -30,8 +35,8 @@ let chainId = 17000;
 
 const delegationManagerAddress = "0xA44151489861Fe9e3055d95adC98FbD462B948e7";
 const avsDirectoryAddress = "0x055733000064333caddbc92763c58bf0192ffebf";
-const helloWorldServiceManagerAddress = "0x070617a41bb28ea81b3b3a981e211c345d87df97";
-const ecdsaStakeRegistryAddress = "0xd15199DCa3A4AB2616d09A134D43cA7766D27355";
+const helloWorldServiceManagerAddress = "0x4037550102436347fe003760bd125211158ca3dc";//"0x1B931d39FD7b3ccED7e255BcF3f5B0e99383F533";
+const ecdsaStakeRegistryAddress = "0x840118451fe83c15955CB4FfCbCBf22e1E33532d";
 
 // Load ABIs
 const delegationManagerABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../abis/IDelegationManager.json'), 'utf8'));
@@ -42,6 +47,10 @@ const avsDirectoryABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../a
 // Initialize contract objects from ABIs
 const delegationManager = new ethers.Contract(delegationManagerAddress, delegationManagerABI, wallet);
 const helloWorldServiceManager = new ethers.Contract(helloWorldServiceManagerAddress, helloWorldServiceManagerABI, wallet);
+
+
+const helloWorldServiceManager2 = new ethers.Contract(helloWorldServiceManagerAddress, helloWorldServiceManagerABI, wallet2);
+
 const ecdsaRegistryContract = new ethers.Contract(ecdsaStakeRegistryAddress, ecdsaRegistryABI, wallet);
 const avsDirectory = new ethers.Contract(avsDirectoryAddress, avsDirectoryABI, wallet);
 
@@ -74,7 +83,10 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
     taskIndex,
     signedTask,
     Math.floor(parseFloat(score)));
-    const tx = await helloWorldServiceManager.respondToAuditTask(
+
+
+
+    const tx = await helloWorldServiceManager2.respondToAuditTask(
         {
             contractAddress: task[0],
             taskCreatedBlock: task[1],
@@ -90,6 +102,7 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
     await tx.wait();
     console.log('TX Included')
     } catch (e: any) {
+        console.log(e);
         throw new Error(e.message);
     }
 };
@@ -106,7 +119,7 @@ const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, a
 
     console.log('signed')
     // Call the verifyAuditReport function
-    const tx = await helloWorldServiceManager.verifyAuditReport(
+    const tx = await helloWorldServiceManager2.verifyAuditReport(
         taskStruct,
         taskIndex,
         approval
@@ -114,6 +127,8 @@ const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, a
     console.log('transaction created and awaiting inclusion')
 
     await tx.wait();
+
+    console.log('TX included');
     } catch (e: any) {
         throw new Error(e.message);
     }
@@ -227,9 +242,11 @@ const main = async () => {
     monitorNewTasks().catch((error) => {
         console.error("Error monitoring tasks:", error);
     });
-    // monitorVerifyAuditReport().catch((error) => {
-    //     console.error("Error monitoring Verify Audit Tasks:", error);
-    // });
+
+
+    monitorVerifyAuditReport().catch((error) => {
+        console.error("Error monitoring Verify Audit Tasks:", error);
+    });
  };
 
 main().catch((error) => {
