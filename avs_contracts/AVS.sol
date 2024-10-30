@@ -2647,41 +2647,6 @@ interface IRegistry {
     function registryCoordinator() external view returns (address);
 }
 
-// src/ClaimApproval.sol
-
-contract ClaimApproval {
-    mapping(uint256 => bool) public claimApprove;
-    address[] public owners;
-    mapping(address => bool) public isOwner;
-    uint256 public requiredApprovals;
-
-    // Tracks approvals for each claim: claimId => (owner => approved)
-    mapping(uint256 => mapping(address => bool)) public OwnerApproval;
-    // Counts the number of approvals for each claim
-    mapping(uint256 => uint256) public approvalCounts;
-
-    /**
-     * @dev Allows an owner to approve a claim. When the number of approvals reaches the required threshold,
-     * the claim becomes approved.
-     * @param claimId The ID of the claim to approve.
-     */
-    function approveClaim(uint256 claimId) public {
-        require(isOwner[msg.sender], "Caller is not an owner");
-        require(
-            !OwnerApproval[claimId][msg.sender],
-            "Caller has already approved this claim"
-        );
-        require(!claimApprove[claimId], "Claim is already approved");
-
-        OwnerApproval[claimId][msg.sender] = true;
-        approvalCounts[claimId] += 1;
-
-        if (approvalCounts[claimId] >= requiredApprovals) {
-            claimApprove[claimId] = true;
-        }
-    }
-}
-
 // src/interfaces/IHelloWorldServiceManager.sol
 
 interface IHelloWorldServiceManager {
@@ -3420,6 +3385,163 @@ interface IServiceManagerUI {
     function avsDirectory() external view returns (address);
 }
 
+// src/QuillAIReports.sol
+
+// Importing OpenZeppelin's AccessControl for role management
+// import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract QuillAIReports {
+    struct Submission {
+        address owner;
+        address contractAddress;
+        bool proxyContract;
+        uint256 timestamp;
+        bool audited;
+    }
+
+    struct AuditReport {
+        string reportIPFSHash;
+        uint8 riskScore; // Risk score between 0-100
+        uint256 timestamp;
+    }
+    IQuillToken public quillToken =
+        IQuillToken(0x7607C082538c187F9050e23680D52B7EFC190011);
+
+    // Mapping from submission ID to Submission details
+    mapping(uint256 => Submission) public submissions;
+
+    // Mapping from submission ID to AuditReport
+    mapping(uint256 => AuditReport) public auditReports;
+    mapping(address => uint256[]) public userToReportsNum;
+    uint256 public submissionCounter;
+
+    event ContractSubmitted(
+        uint256 indexed submissionId,
+        address indexed owner,
+        address contractAddress,
+        bool proxyContract,
+        uint256 timestamp
+    );
+
+    event AuditCompleted(
+        uint256 indexed submissionId,
+        string reportIPFSHash,
+        uint8 riskScore,
+        uint256 timestamp
+    );
+
+    constructor() {}
+
+    /**
+     * @dev Allows a smart contract owner to submit their contract for auditing.
+     * @param _contractAddress address of smart contract to be audited.
+     * @param _proxyContract upgradable smart contrat or not.
+     */
+    function submitContract(
+        address _contractAddress,
+        bool _proxyContract
+    ) internal {
+        quillToken.transferFrom(msg.sender, address(this), 100);
+        submissionCounter++;
+        userToReportsNum[msg.sender].push(submissionCounter);
+        submissions[submissionCounter] = Submission({
+            owner: msg.sender,
+            contractAddress: _contractAddress,
+            proxyContract: _proxyContract,
+            timestamp: block.timestamp,
+            audited: false
+        });
+
+        emit ContractSubmitted(
+            submissionCounter,
+            msg.sender,
+            _contractAddress,
+            _proxyContract,
+            block.timestamp
+        );
+    }
+
+    /**
+     * @dev Allows an auditor to submit an audit report.
+     * @param _submissionId ID of the submission being audited.
+     * @param _reportIPFSHash IPFS hash of the audit report.
+     * @param _riskScore Risk score assigned to the contract.
+     */
+    function submitAuditReport(
+        uint256 _submissionId,
+        string memory _reportIPFSHash,
+        uint8 _riskScore
+    ) internal {
+        require(
+            submissions[_submissionId].owner != address(0),
+            "Invalid submission ID"
+        );
+        require(
+            !submissions[_submissionId].audited,
+            "Audit report already submitted"
+        );
+        require(_riskScore <= 100, "Risk score must be between 0 and 100");
+
+        auditReports[_submissionId] = AuditReport({
+            reportIPFSHash: _reportIPFSHash,
+            riskScore: _riskScore,
+            timestamp: block.timestamp
+        });
+
+        submissions[_submissionId].audited = true;
+
+        emit AuditCompleted(
+            _submissionId,
+            _reportIPFSHash,
+            _riskScore,
+            block.timestamp
+        );
+    }
+
+    /**
+     * @dev Retrieves the audit report for a given submission.
+     * @param _submissionId ID of the submission.
+     * @return AuditReport containing the IPFS hash, risk score, and timestamp.
+     */
+    function getAuditReport(
+        uint256 _submissionId
+    ) public view returns (AuditReport memory) {
+        require(
+            submissions[_submissionId].audited,
+            "Audit report not yet available"
+        );
+        return auditReports[_submissionId];
+    }
+    function getSubmission(
+        uint256 _submissionId
+    ) public view returns (Submission memory) {
+        return submissions[_submissionId];
+    }
+    function getUserSubmissions(
+        address userAddress
+    ) public view returns (uint256[] memory) {
+        return userToReportsNum[userAddress];
+    }
+
+    // /**
+    //  * @dev Assigns the AUDITOR_ROLE to an address.
+    //  * @param _auditor Address to be assigned as an auditor.
+    //  */
+    // function addAuditor(address _auditor) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     grantRole(AUDITOR_ROLE, _auditor);
+    // }
+
+    // /**
+    //  * @dev Revokes the AUDITOR_ROLE from an address.
+    //  * @param _auditor Address to be revoked as an auditor.
+    //  */
+    // function removeAuditor(
+    //     address _auditor
+    // ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     revokeRole(AUDITOR_ROLE, _auditor);
+    // }
+}
+
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts-upgradeable/contracts/utils/CheckpointsUpgradeable.sol
 
 // OpenZeppelin Contracts (last updated v4.5.0) (utils/Checkpoints.sol)
@@ -3978,160 +4100,225 @@ interface ECDSAStakeRegistryEventsAndErrors {
     error OperatorNotRegistered();
 }
 
-// src/QuillAIReports.sol
+// src/QuillInsurance.sol
 
-// Importing OpenZeppelin's AccessControl for role management
+// Importing OpenZeppelin's ERC20 interface and SafeERC20 library
+// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 // import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract QuillAIReports is ClaimApproval {
-    struct Submission {
+contract QuillInsurance is QuillAIReports {
+    // using SafeERC20 for IERC20;
+
+    // bytes32 public constant INSURER_ROLE = keccak256("INSURER_ROLE");
+
+    uint256 public policyCounter;
+
+    enum PolicyStatus {
+        Inactive,
+        Active,
+        ClaimFiled,
+        ClaimApproved
+    }
+
+    struct Policy {
+        uint256 policyId;
         address owner;
-        address contractAddress;
-        bool proxyContract;
-        uint256 timestamp;
-        bool audited;
+        uint256 submissionId;
+        uint8 riskScore;
+        uint256 coverageAmount;
+        uint256 premiumAmount;
+        uint256 startTime;
+        uint256 endTime;
+        PolicyStatus status;
     }
 
-    struct AuditReport {
-        string reportIPFSHash;
-        uint8 riskScore; // Risk score between 0-100
+    struct Claim {
+        uint256 claimId;
+        uint256 policyId;
+        string evidenceIPFSHash;
         uint256 timestamp;
+        bool processed;
+        bool approved;
     }
-    IQuillToken public quillToken =
-        IQuillToken(0x7607C082538c187F9050e23680D52B7EFC190011);
 
-    // Mapping from submission ID to Submission details
-    mapping(uint256 => Submission) public submissions;
+    mapping(uint256 => Policy) public policies;
+    mapping(uint256 => Claim) public claims;
 
-    // Mapping from submission ID to AuditReport
-    mapping(uint256 => AuditReport) public auditReports;
-    mapping(address => uint256[]) public userToReportsNum;
-    uint256 public submissionCounter;
-
-    event ContractSubmitted(
-        uint256 indexed submissionId,
+    event PolicyCreated(
+        uint256 indexed policyId,
         address indexed owner,
-        address contractAddress,
-        bool proxyContract,
+        uint256 submissionId,
+        uint256 coverageAmount,
+        uint256 premiumAmount,
+        uint256 startTime,
+        uint256 endTime
+    );
+
+    event PremiumPaid(
+        uint256 indexed policyId,
+        address indexed owner,
+        uint256 premiumAmount
+    );
+
+    event ClaimFiled(
+        uint256 indexed claimId,
+        uint256 indexed policyId,
+        string evidenceIPFSHash,
         uint256 timestamp
     );
 
-    event AuditCompleted(
-        uint256 indexed submissionId,
-        string reportIPFSHash,
-        uint8 riskScore,
-        uint256 timestamp
+    event ClaimProcessed(
+        uint256 indexed claimId,
+        uint256 indexed policyId,
+        bool approved
     );
 
-    constructor() {}
+    event Payout(
+        uint256 indexed policyId,
+        address indexed owner,
+        uint256 payoutAmount
+    );
 
-    /**
-     * @dev Allows a smart contract owner to submit their contract for auditing.
-     * @param _contractAddress address of smart contract to be audited.
-     * @param _proxyContract upgradable smart contrat or not.
-     */
-    function submitContract(
-        address _contractAddress,
-        bool _proxyContract
-    ) internal {
-        quillToken.transferFrom(msg.sender, address(this), 100);
-        submissionCounter++;
-        userToReportsNum[msg.sender].push(submissionCounter);
-        submissions[submissionCounter] = Submission({
-            owner: msg.sender,
-            contractAddress: _contractAddress,
-            proxyContract: _proxyContract,
-            timestamp: block.timestamp,
-            audited: false
-        });
-
-        emit ContractSubmitted(
-            submissionCounter,
-            msg.sender,
-            _contractAddress,
-            _proxyContract,
-            block.timestamp
-        );
+    constructor() {
+        // quillToken = IQuillToken(_quillTokenAddress);
+        // _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // _grantRole(INSURER_ROLE, msg.sender);
     }
 
     /**
-     * @dev Allows an auditor to submit an audit report.
-     * @param _submissionId ID of the submission being audited.
-     * @param _reportIPFSHash IPFS hash of the audit report.
-     * @param _riskScore Risk score assigned to the contract.
+     * @dev Creates a new insurance policy based on the audit report.
+     * @param _submissionId ID of the audited contract submission.
+     * @param _coverageAmount Desired coverage amount.
+     * @param _duration Duration of the policy in seconds.
      */
-    function submitAuditReport(
+    function createPolicy(
         uint256 _submissionId,
-        string memory _reportIPFSHash,
-        uint8 _riskScore
+        uint256 _coverageAmount,
+        uint256 _duration
     ) internal {
-        require(
-            submissions[_submissionId].owner != address(0),
-            "Invalid submission ID"
-        );
-        require(
-            !submissions[_submissionId].audited,
-            "Audit report already submitted"
-        );
-        require(_riskScore <= 100, "Risk score must be between 0 and 100");
+        // Retrieve audit report
+        uint8 riskScore = getAuditReport(_submissionId).riskScore;
 
-        auditReports[_submissionId] = AuditReport({
-            reportIPFSHash: _reportIPFSHash,
-            riskScore: _riskScore,
-            timestamp: block.timestamp
+        // Calculate premium
+        uint256 premiumAmount = calculatePremium(
+            riskScore,
+            _coverageAmount,
+            _duration
+        );
+
+        policyCounter++;
+        policies[policyCounter] = Policy({
+            policyId: policyCounter,
+            owner: msg.sender,
+            submissionId: _submissionId,
+            riskScore: riskScore,
+            coverageAmount: _coverageAmount,
+            premiumAmount: premiumAmount,
+            startTime: block.timestamp,
+            endTime: block.timestamp + _duration,
+            status: PolicyStatus.Inactive
         });
 
-        submissions[_submissionId].audited = true;
-
-        emit AuditCompleted(
+        emit PolicyCreated(
+            policyCounter,
+            msg.sender,
             _submissionId,
-            _reportIPFSHash,
-            _riskScore,
-            block.timestamp
+            _coverageAmount,
+            premiumAmount,
+            block.timestamp,
+            block.timestamp + _duration
         );
     }
 
     /**
-     * @dev Retrieves the audit report for a given submission.
-     * @param _submissionId ID of the submission.
-     * @return AuditReport containing the IPFS hash, risk score, and timestamp.
+     * @dev Allows the policy owner to pay the premium and activate the policy.
+     * @param _policyId ID of the policy to activate.
      */
-    function getAuditReport(
-        uint256 _submissionId
-    ) public view returns (AuditReport memory) {
+    function payPremium(uint256 _policyId) internal {
+        Policy storage policy = policies[_policyId];
         require(
-            submissions[_submissionId].audited,
-            "Audit report not yet available"
+            msg.sender == policy.owner,
+            "Only policy owner can pay the premium"
         );
-        return auditReports[_submissionId];
+
+        // Transfer Quill tokens as premium payment
+        quillToken.transferFrom(
+            msg.sender,
+            address(this),
+            policy.premiumAmount
+        );
+
+        policy.endTime = block.timestamp + (policy.endTime - policy.startTime);
+        policy.startTime = block.timestamp;
+        policy.status = PolicyStatus.Active;
+
+        emit PremiumPaid(_policyId, msg.sender, policy.premiumAmount);
     }
-    function getSubmission(
-        uint256 _submissionId
-    ) public view returns (Submission memory) {
-        return submissions[_submissionId];
+
+    /**
+     * @dev Calculates the premium based on risk score, coverage amount, and duration.
+     * @param _riskScore Risk score from the audit.
+     * @param _coverageAmount Desired coverage amount.
+     * @param _duration Duration of the policy in seconds.
+     * @return premium Premium amount to be paid.
+     */
+    function calculatePremium(
+        uint8 _riskScore,
+        uint256 _coverageAmount,
+        uint256 _duration
+    ) public pure returns (uint256 premium) {
+        // Simplified premium calculation formula
+        // Premium = (Risk Score %) * Coverage Amount * (Duration / 1 year)
+        // Risk Score is between 0-100, so we divide by 100 to get percentage
+        uint256 riskFactor = uint256(_riskScore) * 1e16; // Convert to 18 decimals
+        uint256 durationFactor = (_duration * 1e18) / 31536000; // Seconds in a year
+
+        premium = (_coverageAmount * riskFactor * durationFactor) / 1e36; // Adjusting decimals
+        return premium;
     }
-    function getUserSubmissions(
-        address userAddress
-    ) public view returns (uint256[] memory) {
-        return userToReportsNum[userAddress];
+
+    /**
+     * @dev Allows the insurer to update policy status, e.g., set to expired.
+     * @param _policyId ID of the policy.
+     * @param _status New status of the policy.
+     */
+    function updatePolicyStatus(
+        uint256 _policyId,
+        PolicyStatus _status
+    ) internal {
+        Policy storage policy = policies[_policyId];
+        policy.status = _status;
+    }
+
+    /**
+     * @dev Retrieves policy details.
+     * @param _policyId ID of the policy.
+     * @return Policy struct containing policy details.
+     */
+    function getPolicy(uint256 _policyId) public view returns (Policy memory) {
+        return policies[_policyId];
+    }
+
+    function getClaim(uint256 claimId) public view returns (Claim memory) {
+        return claims[claimId];
     }
 
     // /**
-    //  * @dev Assigns the AUDITOR_ROLE to an address.
-    //  * @param _auditor Address to be assigned as an auditor.
+    //  * @dev Assigns the INSURER_ROLE to an address.
+    //  * @param _insurer Address to be assigned as an insurer.
     //  */
-    // function addAuditor(address _auditor) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    //     grantRole(AUDITOR_ROLE, _auditor);
+    // function addInsurer(address _insurer) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     grantRole(INSURER_ROLE, _insurer);
     // }
 
     // /**
-    //  * @dev Revokes the AUDITOR_ROLE from an address.
-    //  * @param _auditor Address to be revoked as an auditor.
+    //  * @dev Revokes the INSURER_ROLE from an address.
+    //  * @param _insurer Address to be revoked as an insurer.
     //  */
-    // function removeAuditor(
-    //     address _auditor
+    // function removeInsurer(
+    //     address _insurer
     // ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    //     revokeRole(AUDITOR_ROLE, _auditor);
+    //     revokeRole(INSURER_ROLE, _insurer);
     // }
 }
 
@@ -4670,229 +4857,6 @@ interface IDelegationManager is ISignatureUtils {
 
     /// @notice Returns the keccak256 hash of `withdrawal`.
     function calculateWithdrawalRoot(Withdrawal memory withdrawal) external pure returns (bytes32);
-}
-
-// src/QuillInsurance.sol
-
-// Importing OpenZeppelin's ERC20 interface and SafeERC20 library
-// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import "@openzeppelin/contracts/access/AccessControl.sol";
-
-contract QuillInsurance is QuillAIReports {
-    // using SafeERC20 for IERC20;
-
-    // bytes32 public constant INSURER_ROLE = keccak256("INSURER_ROLE");
-
-    uint256 public policyCounter;
-
-    enum PolicyStatus {
-        Inactive,
-        Active,
-        ClaimFiled,
-        ClaimApproved,
-        ClaimDenied
-    }
-
-    struct Policy {
-        uint256 policyId;
-        address owner;
-        uint256 submissionId;
-        uint8 riskScore;
-        uint256 coverageAmount;
-        uint256 premiumAmount;
-        uint256 startTime;
-        uint256 endTime;
-        PolicyStatus status;
-    }
-
-    struct Claim {
-        uint256 claimId;
-        uint256 policyId;
-        string evidenceIPFSHash;
-        uint256 timestamp;
-        bool processed;
-        bool approved;
-    }
-
-    mapping(uint256 => Policy) public policies;
-    mapping(uint256 => Claim) public claims;
-
-    event PolicyCreated(
-        uint256 indexed policyId,
-        address indexed owner,
-        uint256 submissionId,
-        uint256 coverageAmount,
-        uint256 premiumAmount,
-        uint256 startTime,
-        uint256 endTime
-    );
-
-    event PremiumPaid(
-        uint256 indexed policyId,
-        address indexed owner,
-        uint256 premiumAmount
-    );
-
-    event ClaimFiled(
-        uint256 indexed claimId,
-        uint256 indexed policyId,
-        string evidenceIPFSHash,
-        uint256 timestamp
-    );
-
-    event ClaimProcessed(
-        uint256 indexed claimId,
-        uint256 indexed policyId,
-        bool approved
-    );
-
-    event Payout(
-        uint256 indexed policyId,
-        address indexed owner,
-        uint256 payoutAmount
-    );
-
-    constructor() {
-        // quillToken = IQuillToken(_quillTokenAddress);
-        // _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        // _grantRole(INSURER_ROLE, msg.sender);
-    }
-
-    /**
-     * @dev Creates a new insurance policy based on the audit report.
-     * @param _submissionId ID of the audited contract submission.
-     * @param _coverageAmount Desired coverage amount.
-     * @param _duration Duration of the policy in seconds.
-     */
-    function createPolicy(
-        uint256 _submissionId,
-        uint256 _coverageAmount,
-        uint256 _duration
-    ) internal {
-        // Retrieve audit report
-        uint8 riskScore = getAuditReport(_submissionId).riskScore;
-
-        // Calculate premium
-        uint256 premiumAmount = calculatePremium(
-            riskScore,
-            _coverageAmount,
-            _duration
-        );
-
-        policyCounter++;
-        policies[policyCounter] = Policy({
-            policyId: policyCounter,
-            owner: msg.sender,
-            submissionId: _submissionId,
-            riskScore: riskScore,
-            coverageAmount: _coverageAmount,
-            premiumAmount: premiumAmount,
-            startTime: block.timestamp,
-            endTime: block.timestamp + _duration,
-            status: PolicyStatus.Inactive
-        });
-
-        emit PolicyCreated(
-            policyCounter,
-            msg.sender,
-            _submissionId,
-            _coverageAmount,
-            premiumAmount,
-            block.timestamp,
-            block.timestamp + _duration
-        );
-    }
-
-    /**
-     * @dev Allows the policy owner to pay the premium and activate the policy.
-     * @param _policyId ID of the policy to activate.
-     */
-    function payPremium(uint256 _policyId) internal {
-        Policy storage policy = policies[_policyId];
-        require(
-            msg.sender == policy.owner,
-            "Only policy owner can pay the premium"
-        );
-
-        // Transfer Quill tokens as premium payment
-        quillToken.transferFrom(
-            msg.sender,
-            address(this),
-            policy.premiumAmount
-        );
-
-        policy.endTime = block.timestamp + (policy.endTime - policy.startTime);
-        policy.startTime = block.timestamp;
-        policy.status = PolicyStatus.Active;
-
-        emit PremiumPaid(_policyId, msg.sender, policy.premiumAmount);
-    }
-
-    /**
-     * @dev Calculates the premium based on risk score, coverage amount, and duration.
-     * @param _riskScore Risk score from the audit.
-     * @param _coverageAmount Desired coverage amount.
-     * @param _duration Duration of the policy in seconds.
-     * @return premium Premium amount to be paid.
-     */
-    function calculatePremium(
-        uint8 _riskScore,
-        uint256 _coverageAmount,
-        uint256 _duration
-    ) public pure returns (uint256 premium) {
-        // Simplified premium calculation formula
-        // Premium = (Risk Score %) * Coverage Amount * (Duration / 1 year)
-        // Risk Score is between 0-100, so we divide by 100 to get percentage
-        uint256 riskFactor = uint256(_riskScore) * 1e16; // Convert to 18 decimals
-        uint256 durationFactor = (_duration * 1e18) / 31536000; // Seconds in a year
-
-        premium = (_coverageAmount * riskFactor * durationFactor) / 1e36; // Adjusting decimals
-        return premium;
-    }
-
-    /**
-     * @dev Allows the insurer to update policy status, e.g., set to expired.
-     * @param _policyId ID of the policy.
-     * @param _status New status of the policy.
-     */
-    function updatePolicyStatus(
-        uint256 _policyId,
-        PolicyStatus _status
-    ) internal {
-        Policy storage policy = policies[_policyId];
-        policy.status = _status;
-    }
-
-    /**
-     * @dev Retrieves policy details.
-     * @param _policyId ID of the policy.
-     * @return Policy struct containing policy details.
-     */
-    function getPolicy(uint256 _policyId) public view returns (Policy memory) {
-        return policies[_policyId];
-    }
-
-    function getClaim(uint256 claimId) public view returns (Claim memory) {
-        return claims[claimId];
-    }
-
-    // /**
-    //  * @dev Assigns the INSURER_ROLE to an address.
-    //  * @param _insurer Address to be assigned as an insurer.
-    //  */
-    // function addInsurer(address _insurer) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    //     grantRole(INSURER_ROLE, _insurer);
-    // }
-
-    // /**
-    //  * @dev Revokes the INSURER_ROLE from an address.
-    //  * @param _insurer Address to be revoked as an insurer.
-    //  */
-    // function removeInsurer(
-    //     address _insurer
-    // ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-    //     revokeRole(INSURER_ROLE, _insurer);
-    // }
 }
 
 // lib/eigenlayer-middleware/lib/eigenlayer-contracts/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol
@@ -6732,10 +6696,11 @@ contract HelloWorldServiceManager is
         )
     {}
 
-     function initialize(address initialOwner_, address rewardsInitiator_, address allowlistManager_)
-        external
-        initializer
-    {
+    function initialize(
+        address initialOwner_,
+        address rewardsInitiator_,
+        address allowlistManager_
+    ) external initializer {
         __ServiceManagerBase_init(initialOwner_, rewardsInitiator_);
         __OperatorAllowlist_init(allowlistManager_, true);
     }
@@ -6958,7 +6923,6 @@ contract HelloWorldServiceManager is
      * @param _claimId ID of the claim.
      */
     function processClaim(uint256 _claimId) public onlyOperator {
-        require(claimApprove[_claimId], "Claim is not approved");
         Claim storage claim = claims[_claimId];
         Policy storage policy = policies[claim.policyId];
 
@@ -6967,15 +6931,11 @@ contract HelloWorldServiceManager is
         claim.processed = true;
         claim.approved = true;
 
-        if (true) {
-            policy.status = PolicyStatus.ClaimApproved;
-            // Payout the coverage amount to the policy owner
-            quillToken.transfer(policy.owner, policy.coverageAmount);
+        policy.status = PolicyStatus.ClaimApproved;
+        // Payout the coverage amount to the policy owner
+        quillToken.transfer(policy.owner, policy.coverageAmount);
 
-            emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
-        } else {
-            policy.status = PolicyStatus.ClaimDenied;
-        }
+        emit Payout(policy.policyId, policy.owner, policy.coverageAmount);
 
         emit ClaimProcessed(_claimId, claim.policyId, true);
     }
