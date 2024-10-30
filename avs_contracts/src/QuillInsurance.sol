@@ -106,7 +106,7 @@ contract QuillInsurance is QuillAIReports {
             _duration
         );
 
-        policyCounter++;
+        policyCounter=_submissionId;
         policies[policyCounter] = Policy({
             policyId: policyCounter,
             owner: msg.sender,
