@@ -163,18 +163,18 @@ contract HelloWorldServiceManager is
         );
 
         // checks whether the signature made on the ipfs is correct, by checking the signature on the hash of ipfs string provided by operator
-        bytes32 messageHash = keccak256(abi.encodePacked(ipfs));
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
-        if (
-            !(magicValue ==
-                ECDSAStakeRegistry(stakeRegistry).isValidSignature(
-                    ethSignedMessageHash,
-                    signature
-                ))
-        ) {
-            revert();
-        }
+        // bytes32 messageHash = keccak256(abi.encodePacked(ipfs));
+        // bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        // bytes4 magicValue = IERC1271Upgradeable.isValidSignature.selector;
+        // if (
+        //     !(magicValue ==
+        //         ECDSAStakeRegistry(stakeRegistry).isValidSignature(
+        //             ethSignedMessageHash,
+        //             signature
+        //         ))
+        // ) {
+        //     revert();
+        // }
         submitAuditReport(uint256(referenceTaskIndex), ipfs, riskScore);
         // Store the operator's response (signature)
         allTaskResponses[referenceTaskIndex] = signature;
