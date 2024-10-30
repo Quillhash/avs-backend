@@ -136,10 +136,6 @@ contract QuillInsurance is QuillAIReports {
      */
     function payPremium(uint256 _policyId) internal {
         Policy storage policy = policies[_policyId];
-        require(
-            msg.sender == policy.owner,
-            "Only policy owner can pay the premium"
-        );
 
         // Transfer Quill tokens as premium payment
         quillToken.transferFrom(
