@@ -15,23 +15,23 @@ const provider = new ethers.JsonRpcProvider(process.env.HOLESKY_RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
 
-let chainId = 31337;
+let chainId = 17000;
 
-const avsDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/hello-world/${chainId}.json`), 'utf8'));
-// Load core deployment data
-const coreDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/core/${chainId}.json`), 'utf8'));
-
-
-const delegationManagerAddress = coreDeploymentData.addresses.delegation; // todo: reminder to fix the naming of this contract in the deployment file, change to delegationManager
-const avsDirectoryAddress = coreDeploymentData.addresses.avsDirectory;
-const helloWorldServiceManagerAddress = avsDeploymentData.addresses.helloWorldServiceManager;
-const ecdsaStakeRegistryAddress = avsDeploymentData.addresses.stakeRegistry;
+// const avsDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/hello-world/${chainId}.json`), 'utf8'));
+// // Load core deployment data
+// const coreDeploymentData = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../avs_contracts/deployments/core/${chainId}.json`), 'utf8'));
 
 
-// const delegationManagerAddress = "0xA44151489861Fe9e3055d95adC98FbD462B948e7";
-// const avsDirectoryAddress = "0x055733000064333caddbc92763c58bf0192ffebf";
-// const helloWorldServiceManagerAddress = "0x5b18cec9860cd895b1d01b9a29154c4cf4db34f2";
-// const ecdsaStakeRegistryAddress = "0x575eAC59A1a0c8A3bC780B536198b108FE8b2d60";
+// const delegationManagerAddress = coreDeploymentData.addresses.delegation; // todo: reminder to fix the naming of this contract in the deployment file, change to delegationManager
+// const avsDirectoryAddress = coreDeploymentData.addresses.avsDirectory;
+// const helloWorldServiceManagerAddress = avsDeploymentData.addresses.helloWorldServiceManager;
+// const ecdsaStakeRegistryAddress = avsDeploymentData.addresses.stakeRegistry;
+
+
+const delegationManagerAddress = "0xA44151489861Fe9e3055d95adC98FbD462B948e7";
+const avsDirectoryAddress = "0x055733000064333caddbc92763c58bf0192ffebf";
+const helloWorldServiceManagerAddress = "0x070617a41bb28ea81b3b3a981e211c345d87df97";
+const ecdsaStakeRegistryAddress = "0xd15199DCa3A4AB2616d09A134D43cA7766D27355";
 
 // Load ABIs
 const delegationManagerABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../abis/IDelegationManager.json'), 'utf8'));
@@ -48,6 +48,8 @@ const avsDirectory = new ethers.Contract(avsDirectoryAddress, avsDirectoryABI, w
 
 const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, score: string) => {
     try {
+
+
     const messageHash = ethers.solidityPackedKeccak256(["string"], [ipfs]);
     const messageBytes = ethers.getBytes(messageHash);
     const signature = await wallet.signMessage(messageBytes);
@@ -59,6 +61,19 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
         [operators, signatures, ethers.toBigInt(await provider.getBlockNumber())]
     );
 
+
+    console.log('Making TX')
+
+
+    console.log({
+        contractAddress: task[0],
+        taskCreatedBlock: task[1],
+        createdBy: task[2]
+    },
+    ipfs,
+    taskIndex,
+    signedTask,
+    Math.floor(parseFloat(score)));
     const tx = await helloWorldServiceManager.respondToAuditTask(
         {
             contractAddress: task[0],
@@ -70,7 +85,10 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
         signedTask,
         Math.floor(parseFloat(score))
     );
+
+    console.log('Awaiting TX Confirmation')
     await tx.wait();
+    console.log('TX Included')
     } catch (e: any) {
         throw new Error(e.message);
     }
@@ -85,12 +103,15 @@ const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, a
         createdBy: task[2]                // Address as string
     };
 
+
+    console.log('signed')
     // Call the verifyAuditReport function
     const tx = await helloWorldServiceManager.verifyAuditReport(
         taskStruct,
         taskIndex,
         approval
     );
+    console.log('transaction created and awaiting inclusion')
 
     await tx.wait();
     } catch (e: any) {
@@ -164,6 +185,9 @@ const monitorNewTasks = async () => {
                 "pinata_api_key": `${process.env.PINATA_CLOUD_API_KEY}`,
                 "pinata_secret_api_key": `${process.env.PINATA_CLOUD_SECRET_KEY}`,
             },);
+
+
+            console.log('Audit Complete')
             await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash, audit?.auditReport?.securityScore || 0);
             
         } catch (e) {
@@ -199,10 +223,10 @@ const monitorVerifyAuditReport = async () => {
 };
 
 const main = async () => {
-    await registerOperator();
-    // monitorNewTasks().catch((error) => {
-    //     console.error("Error monitoring tasks:", error);
-    // });
+    //await registerOperator();
+    monitorNewTasks().catch((error) => {
+        console.error("Error monitoring tasks:", error);
+    });
     // monitorVerifyAuditReport().catch((error) => {
     //     console.error("Error monitoring Verify Audit Tasks:", error);
     // });
