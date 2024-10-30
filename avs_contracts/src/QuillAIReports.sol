@@ -56,7 +56,7 @@ contract QuillAIReports {
         address _contractAddress,
         bool _proxyContract
     ) internal {
-        quillToken.transferFrom(msg.sender, address(this), 100);
+        quillToken.transferFrom(msg.sender, address(this), 1 ether);
         submissionCounter++;
         userToReportsNum[msg.sender].push(submissionCounter);
         submissions[submissionCounter] = Submission({
