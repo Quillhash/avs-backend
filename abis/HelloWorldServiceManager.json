@@ -828,6 +828,25 @@
   },
   {
     "type": "function",
+    "name": "insuranceTaskCheck",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "isOperatorAllowed",
     "inputs": [
       {

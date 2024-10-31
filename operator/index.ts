@@ -35,8 +35,12 @@ let chainId = 17000;
 
 const delegationManagerAddress = "0xA44151489861Fe9e3055d95adC98FbD462B948e7";
 const avsDirectoryAddress = "0x055733000064333caddbc92763c58bf0192ffebf";
-const helloWorldServiceManagerAddress = "0x4037550102436347fe003760bd125211158ca3dc";//"0x1B931d39FD7b3ccED7e255BcF3f5B0e99383F533";
-const ecdsaStakeRegistryAddress = "0x840118451fe83c15955CB4FfCbCBf22e1E33532d";
+
+
+const helloWorldServiceManagerAddress = "0x719db00c33cf69e241398d9cb4762e3c9005ae7e";//"0x746cad9a83f22fbc14a5c0cef4092c416401093b"//"0x661908908815C004258dFbC9566108C39Eb7c8e2"
+
+//"0x62a83b25bf17efd8975555cb32129b8884044d8f"//"0xfE49f3683808407899787725d12F78cC8417D085" //"0xa45f26b445e3229139885e245fb0c779e38b1981";//"0x4037550102436347fe003760bd125211158ca3dc";//"0x43765f5b25f73C1bb1F177b03d9546a5DE62F939"//"0x4037550102436347fe003760bd125211158ca3dc";//"0x1B931d39FD7b3ccED7e255BcF3f5B0e99383F533";
+const ecdsaStakeRegistryAddress = "0x3F5B2Ec0a85598213BA3e181a802EE8290714CBf";
 
 // Load ABIs
 const delegationManagerABI = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../abis/IDelegationManager.json'), 'utf8'));
@@ -82,7 +86,7 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
     ipfs,
     taskIndex,
     signedTask,
-    Math.floor(parseFloat(score)));
+    Math.ceil(100.0-parseFloat(score)));
 
 
 
@@ -95,7 +99,7 @@ const signAndRespondToTask = async (taskIndex: number, task: any, ipfs: string, 
         ipfs,
         taskIndex,
         signedTask,
-        Math.floor(parseFloat(score))
+        Math.ceil(100.0-(parseFloat(score)))
     );
 
     console.log('Awaiting TX Confirmation')
@@ -117,7 +121,7 @@ const signAndRespondToVerifyAuditReport = async (taskIndex: number, task: any, a
     };
 
 
-    console.log('signed')
+    console.log('signed');
     // Call the verifyAuditReport function
     const tx = await helloWorldServiceManager2.verifyAuditReport(
         taskStruct,
@@ -202,8 +206,12 @@ const monitorNewTasks = async () => {
             },);
 
 
+            console.log(`This is the Audit Report\n\n`)
+            console.log(audit);
+
+
             console.log('Audit Complete')
-            await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash, audit?.auditReport?.securityScore || 0);
+            await signAndRespondToTask(taskIndex, task, ipfsUrl.IpfsHash, audit?.auditReport?.securityScore || 1);
             
         } catch (e) {
             console.log(e);
@@ -238,15 +246,13 @@ const monitorVerifyAuditReport = async () => {
 };
 
 const main = async () => {
-    //await registerOperator();
+   // await registerOperator();
     monitorNewTasks().catch((error) => {
         console.error("Error monitoring tasks:", error);
     });
-
-
-    monitorVerifyAuditReport().catch((error) => {
-        console.error("Error monitoring Verify Audit Tasks:", error);
-    });
+    // monitorVerifyAuditReport().catch((error) => {
+    //     console.error("Error monitoring Verify Audit Tasks:", error);
+    // });
  };
 
 main().catch((error) => {

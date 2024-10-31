@@ -6,7 +6,7 @@ class ApiCallHelper {
         method: Method = 'GET',
         payload: Record<string, any> = {},
         headers: Record<string, string> = { 'Content-Type': 'application/json' },
-        stringifyPayload: boolean = true
+        stringifyPayload: boolean = false
     ): Promise<any> {
         try {
             const options: AxiosRequestConfig = {

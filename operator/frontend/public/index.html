@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Event Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        #liveEvents {
+            width: 80%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .event-card {
+            position: relative;
+            width: 240px;
+            padding: 20px;
+            margin: 15px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .event-card.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 12px rgba(0, 123, 255, 0.5);
+        }
+        .event-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .event-content {
+            font-size: 14px;
+            color: #333;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #888;
+            transition: color 0.2s;
+        }
+        .delete-btn:hover {
+            color: #ff4d4d;
+        }
+        #buttonContainer {
+            width: 300px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="liveEvents">
+        <!-- Event cards will appear here -->
+        <!-- Sample card structure -->
+        <!-- <div class="event-card">
+            <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+            <div class="event-header">InsuranceTaskCreated</div>
+            <div class="event-content">
+                Task Index: 14<br>
+                Task: {...}<br>
+                Operator: 0x7CB...
+            </div>
+        </div> -->
+    </div>
+
+    <div id="buttonContainer">
+        <button id="verifyAudit" disabled>Verify Audit</button>
+        <button id="verifyInsurance" disabled>Verify Insurance</button>
+        <button id="verifyClaim" disabled>Verify Claim</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // JavaScript function to delete the card
+        function deleteCard(button) {
+            const card = button.parentElement;
+            card.remove();
+        }
+    </script>
+</body>
+</html>

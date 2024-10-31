@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start:operator": "ts-node operator/index.ts",
+    "start:admin": "ts-node operator/frontend/index.ts",
     "start:traffic": "ts-node operator/createNewTask.ts",
     "start:anvil": "anvil",
     "deploy:core": "cd avs-contracts && forge script script/DeployEigenLayerCore.s.sol --rpc-url http://localhost:8545 --broadcast",
@@ -15,13 +16,15 @@
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
-    "ethers": "^6.13.2"
+    "ethers": "^6.13.2",
+    "express": "^4.21.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^20.12.12",
     "@viem/anvil": "^0.0.10",
     "jest": "^29.7.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.6.3"
   }
 }
