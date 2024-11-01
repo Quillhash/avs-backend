@@ -4,17 +4,27 @@ import Web3 from "web3";
 import apiCallHelper from "./helpers/apiCallHelper";
 import fs from "fs";
 import path from "path";
+import express, { Request, Response } from 'express';
 
 //load the environment variables
 dotenv.config({path:'./operator/.env'});
+
+if (!Object.keys(process.env).length) {
+    throw new Error("process.env object is empty");
+}
+
+const PORT = process.env.PORT || 3000;
 
 //Use Web3.js along with Socket RPC for listening 
 //Use Ethers.js with HTTPS RPC for Responding To Contract
 
 // Check if the process.env object is empty
-if (!Object.keys(process.env).length) {
-    throw new Error("process.env object is empty");
-}
+const app = express();
+
+
+// setting up middleware
+app.use(express.static(path.join(__dirname, 'admin')));
+app.use(express.json());
 
 
 
@@ -250,6 +260,94 @@ async function main(){
  
 };
 
+// starts background processes
 main().catch((error) => {
     console.error("Error in main function:", error);
+});
+
+
+
+
+// Endpoint for verifyAuditReport
+app.post('/api/verifyAuditReport', async (req: Request, res: Response) => {
+    const { task, taskIndex } = req.body;
+
+    console.log(task, taskIndex)
+    const approval = true;
+
+    try {
+        console.log('Creating Transaction (verifyAuditReport)')
+        const tx = await ServiceManagerContract.verifyAuditReport(task, taskIndex, approval);
+        console.log('Awaiting Inclusion (verifyAuditReport)')
+        const receipt = await tx.wait();
+        console.log('Included (verifyAuditReport)')
+        res.json({ success: true, receipt });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ success: false, error: error! });
+    }
+});
+
+// Endpoint for verifyInsurance
+app.post('/api/verifyInsurance', async (req: Request, res: Response) => {
+    const { task, taskIndex } = req.body;
+    const approved = true;
+
+    console.log('Creating Signature (Insurance Task')
+
+    console.log(task, taskIndex)
+    const messageHash = ethers.solidityPackedKeccak256(["bool"],[approved]);
+    const messageBytes = ethers.getBytes(messageHash);
+    const signature = await wallet.signMessage(messageBytes);
+
+    const operators = [await wallet.getAddress()];
+    const signatures = [signature];
+    const signedTask = ethers.AbiCoder.defaultAbiCoder().encode(
+        ["address[]", "bytes[]", "uint32"],
+        [operators, signatures, ethers.toBigInt(await httpProvider.getBlockNumber())]
+    );
+
+
+    console.log('Creating Transaction (respondToInsuranceTask)')
+   
+
+    try {
+        const tx = await ServiceManagerContract.respondToInsuranceTask(task, taskIndex, signedTask, approved);
+        console.log('Awaiting Inclusion  (respondToInsuranceTask)')
+        const receipt = await tx.wait();
+        console.log('TX Included  (respondToInsuranceTask)')
+        res.json({ success: true, receipt });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error!});
+    }
+});
+
+
+
+// Endpoint for verifyClaim
+app.post('/api/verifyClaim', async (req: Request, res: Response) => {
+    const { claimId } = req.body;
+    
+    try {
+        console.log('Creating Transaction (processClaim)')
+        const tx = await ServiceManagerContract.processClaim(claimId);
+        console.log('Awaiting Inclusion  (processClaim)')
+        const receipt = await tx.wait();
+        console.log('TX Included  (rprocessClaim)');
+        res.json({ success: true, receipt });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error! });
+    }
+});
+
+// Serve index.html for the root route
+app.get('/', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
+// Start the server
+app.listen(PORT, async () => {
+    console.log(`AVS Client is running at http://localhost:${PORT}`);
+    require('child_process').exec(`open http://localhost:${PORT}`);
 });

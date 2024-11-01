@@ -1954,7 +1954,7 @@ function createEventCard(event, type) {
 
     const eventTitle = document.createElement('div');
     eventTitle.className = 'event-header';
-    eventTitle.text = type;
+    eventTitle.text = "Event";
 
     eventDiv.appendChild(eventTitle);
 
