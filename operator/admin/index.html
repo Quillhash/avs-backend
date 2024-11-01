@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contract Event Monitor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.js" integrity="sha512-79j1YQOJuI8mLseq9icSQKT6bLlLtWknKwj1OpJZMdPt2pFBry3vQTt+NZuJw7NSd1pHhZlu0s12Ngqfa371EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,10 +43,10 @@
             box-shadow: 0 0 12px rgba(0, 123, 255, 0.5);
         }
         .event-header {
+            width:1500px;
             font-size: 18px;
             font-weight: bold;
             color: #007bff;
-            margin-bottom: 10px;
         }
         .event-content {
             font-size: 14px;
@@ -55,18 +57,17 @@
             word-wrap: break-word;
         }
         .delete-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: transparent;
+            background: #c7c5c5;
             border: none;
             cursor: pointer;
             font-size: 16px;
+            padding:5px;
             color: #888;
             transition: color 0.2s;
         }
         .delete-btn:hover {
-            color: #ff4d4d;
+            color: #f5a4a4;
+            background: #8e8c8c;
         }
         #buttonContainer {
             width: 300px;
@@ -97,21 +98,29 @@
             cursor: not-allowed;
             color: #666;
         }
+        .enclosure{
+            display:flex;
+            align-items:center;
+        }
     </style>
 </head>
 <body>
     <div id="liveEvents">
         <!-- Event cards will appear here -->
         <!-- Sample card structure -->
-        <!-- <div class="event-card">
-            <button class="delete-btn" onclick="deleteCard(this)">✕</button>
-            <div class="event-header">InsuranceTaskCreated</div>
+        <div class="event-card">
+            
+            <div class="enclosure">
+                <div class="event-header">Sample Task</div>
+                <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+            </div>
+            
             <div class="event-content">
                 Task Index: 14<br>
                 Task: {...}<br>
                 Operator: 0x7CB...
             </div>
-        </div> -->
+        </div>
     </div>
 
     <div id="buttonContainer">
@@ -125,7 +134,7 @@
     <script>
         // JavaScript function to delete the card
         function deleteCard(button) {
-            const card = button.parentElement;
+            const card = button.parentElement.parentElement;
             card.remove();
         }
     </script>

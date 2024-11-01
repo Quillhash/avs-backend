@@ -1948,20 +1948,25 @@ function createEventCard(event, type) {
     eventDiv.className = 'event-card';
 
 
-    eventDiv.innerHTML += '<button class="delete-btn" onclick="deleteCard(this)">✕</button>';
 
+    const enclosureDiv = document.createElement('div');
+    enclosureDiv.className = 'enclosure';
 
+  
 
     const eventTitle = document.createElement('div');
     eventTitle.className = 'event-header';
-    eventTitle.text = "Event";
+    eventTitle.textContent = type;
 
-    eventDiv.appendChild(eventTitle);
+    enclosureDiv.appendChild(eventTitle);
+    enclosureDiv.innerHTML += '<button class="delete-btn" onclick="deleteCard(this)">✕</button>';
 
     const eventText = document.createElement('div');
     eventText.className = 'event-content';
     eventText.textContent = `${type}: ${JSON.stringify(event.returnValues, null, 2)}`;
 
+
+    eventDiv.appendChild(enclosureDiv);
     eventDiv.appendChild(eventText);
 
     // Event click handler to select the event card and activate the corresponding button
@@ -2003,6 +2008,18 @@ async function verifyAuditReport() {
   const { task, taskIndex } = selectedEventData;
 
   try {
+        Toastify({
+          text: "Verifying Report!",
+          duration: 1000,
+          newWindow: true,
+              gravity: "top", // `top` or `bottom`
+              position: "right", // `left`, `center` or `right`
+              stopOnFocus: true, // Prevents dismissing of toast on hover
+              style: {
+                  background: "green",
+                  foreground:"white"
+              },
+      }).showToast();
       const response = await fetch('/api/verifyAuditReport', {
           method: 'POST',
           headers: {
@@ -2012,8 +2029,32 @@ async function verifyAuditReport() {
       });
       const data = await response.json();
       console.log('Audit report verified:', data);
+      Toastify({
+        text: "Audit Report Verified!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
   } catch (error) {
       console.error('Error verifying audit report:', error);
+      Toastify({
+        text: "Couldn't Verify Report!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
   }
 }
 
@@ -2023,6 +2064,18 @@ async function verifyInsurance() {
   const { task, taskIndex } = selectedEventData;
 
   try {
+        Toastify({
+          text: "Verifying Insurance Request!",
+          duration: 1000,
+          newWindow: true,
+              gravity: "top", // `top` or `bottom`
+              position: "right", // `left`, `center` or `right`
+              stopOnFocus: true, // Prevents dismissing of toast on hover
+              style: {
+                  background: "green",
+                  foreground:"white"
+              },
+      }).showToast();
       const response = await fetch('/api/verifyInsurance', {
           method: 'POST',
           headers: {
@@ -2030,10 +2083,36 @@ async function verifyInsurance() {
           },
           body: JSON.stringify({ task, taskIndex }),
       });
+
       const data = await response.json();
       console.log('Insurance verified:', data);
+
+      Toastify({
+        text: "Insurance Verified!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
   } catch (error) {
       console.error('Error verifying insurance:', error);
+      Toastify({
+        text: "Error Verifying Insurance!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
   }
 }
 
@@ -2043,6 +2122,19 @@ async function verifyClaim() {
   const { claimId } = selectedEventData;
 
   try {
+
+          Toastify({
+            text: "Verifying Claim!",
+            duration: 1000,
+            newWindow: true,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "green",
+                    foreground:"white"
+                },
+        }).showToast();
       const response = await fetch('/api/verifyClaim', {
           method: 'POST',
           headers: {
@@ -2052,8 +2144,35 @@ async function verifyClaim() {
       });
       const data = await response.json();
       console.log('Claim verified:', data);
+
+      Toastify({
+        text: "Claim Verified!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
+
+
   } catch (error) {
       console.error('Error verifying claim:', error);
+      Toastify({
+        text: "Claim Verified!",
+        duration: 1000,
+        newWindow: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "green",
+                foreground:"white"
+            },
+    }).showToast();
   }
 }
 
