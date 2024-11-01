@@ -8,7 +8,11 @@
 # Steps to build and deploy the project
 
 
+
 ## 1. Building the project 
+
+Feel free to directly skip to step 5 unless you plan on creating and deploying your own version of the QuillShield Network
+
 ```
 1. cd avs_contracts
 2. forge build
