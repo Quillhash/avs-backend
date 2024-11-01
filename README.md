@@ -1,31 +1,50 @@
 ## QuillShield AVS
 
-QuillShield Provides Cryptoeconomically secured AI Powered Audits with Risk insured security.
+QuillShield Provides Cryptoeconomically secured AI Powered Audits with Risk insured security. By running this client, you can join the QuillShield Network and perform audits on smart contracts, verify another operator's audit reports, process insurance requests and claims.
 
 
 # Steps to build and deploy the project
 
 
-## Building the project 
+## 1. Building the project 
 ```
 1. cd avs_contracts
 2. forge build
-3. forge script script/DeployEigenLayerCore.s.sol --rpc-url http://localhost:8545 --broadcast 
-4. forge script script/HelloWorldDeployer.s.sol --rpc-url http://localhost:8545 --broadcast
-5. cd ..
-6. node utils/abis.js
+3. cd ..
+4. node utils/abis.js
 
 ```
 
-## Operator Registration 
+## 2. Operator Registration 
+
+If you're a new operator and have never registered to EigenLayer Core Contracts or AVSs before
+
+```
+npm run register:complete
+```
+This command initiates a complete registration 
+
+
+To register exclusively to our AVS, you can use the following command
+
+```
+npm run register:avs
+```
 
 
 
-## Operator Startup
+## 3. Operator Startup
+
+Before you start the operator, make sure you have all the necessary environment variables in place, you can refer to .env.example for the complete information
+
+To start your operator, you can run the following command
+
+```
+npm run start:operator
+```
 
 
-
-## To do
+## 4. To do
 
 - Introduce automated verification method for audit reports
 - Explore intersubjective ways of AI Audit Verification

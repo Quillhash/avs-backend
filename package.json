@@ -1,8 +1,11 @@
 {
   "scripts": {
+    "register:eigen":"ts-node operator/index.ts --registerEigen",
+    "register:avs":"ts-node operator/index.ts --registerAVS",
+    "register:complete":"ts-node operator/index.ts --registerFull",
     "start:operator": "ts-node operator/index.ts",
     "start:admin": "ts-node operator/frontend/index.ts",
-    "flatten":"cd avs_contracts && forge flatten src/QuillShieldServiceManager.sol --output QuillShieldAVS.sol",
+    "flatten": "cd avs_contracts && forge flatten src/QuillShieldServiceManager.sol --output QuillShieldAVS.sol",
     "deploy:core": "cd avs_contracts && forge script script/DeployEigenLayerCore.s.sol --rpc-url http://localhost:8545 --broadcast",
     "build": "cd avs_contracts && forge build",
     "extract:abis": "node utils/abis.js"
@@ -11,7 +14,8 @@
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "ethers": "^6.13.2",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "web3": "^4.14.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

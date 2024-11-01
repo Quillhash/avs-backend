@@ -289,7 +289,7 @@
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -335,7 +335,7 @@
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1061,7 +1061,7 @@
       {
         "name": "task",
         "type": "tuple",
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1111,7 +1111,7 @@
       {
         "name": "task",
         "type": "tuple",
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1352,7 +1352,7 @@
       {
         "name": "task",
         "type": "tuple",
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1505,7 +1505,7 @@
         "name": "task",
         "type": "tuple",
         "indexed": false,
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1541,7 +1541,7 @@
         "name": "task",
         "type": "tuple",
         "indexed": false,
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1695,7 +1695,7 @@
         "name": "task",
         "type": "tuple",
         "indexed": false,
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",
@@ -1731,7 +1731,7 @@
         "name": "task",
         "type": "tuple",
         "indexed": false,
-        "internalType": "struct IHelloWorldServiceManager.Task",
+        "internalType": "struct IQuillShieldServiceManager.Task",
         "components": [
           {
             "name": "contractAddress",

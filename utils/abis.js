@@ -9,9 +9,7 @@ const contractsToExtract = [
   'IAVSDirectory',
   'IDelegationManager',
   'ECDSAStakeRegistry',
-  'HelloWorldServiceManager',
-  'QuillToken',
-  'QuillAIReports'
+  'QuillShieldServiceManager',
 ];
 
 if (!fs.existsSync(abiDir)) {
