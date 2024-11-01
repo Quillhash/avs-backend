@@ -14,6 +14,7 @@
 2. forge build
 3. cd ..
 4. node utils/abis.js
+5. npm i
 
 ```
 
