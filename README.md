@@ -1,6 +1,6 @@
 ## QuillShield AVS
 
-<a href="https://quillshield-avs.vercel.app/audit">QuillShield</a> Provides Cryptoeconomically secured AI Powered Audits with Risk insured security. By running this client, you can join the QuillShield Network and perform audits on smart contracts, verify another operator's audit reports, process insurance requests and claims.
+<a href="https://quillshield-avs.vercel.app/audit">QuillShield</a> Provides Cryptoeconomically secured AI Powered Audits with Risk insured security. By running this client, you can join the QuillShield Network as an operator and perform audits on smart contracts, verify another operator's audit reports, process insurance requests and claims.
 
 
 
