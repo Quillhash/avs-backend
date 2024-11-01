@@ -17,7 +17,7 @@
 //                                                               d8'
 //                                                              d8'
 
-pragma solidity =0.8.26;
+pragma solidity ^0.8.9;
 
 import {ContextUpgradeable} from "@openzeppelin-upgrades/contracts/utils/ContextUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";

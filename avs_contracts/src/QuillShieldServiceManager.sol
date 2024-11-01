@@ -42,7 +42,7 @@ import {IServiceManager} from "@eigenlayer-middleware/src/interfaces/IServiceMan
 import {ECDSAUpgradeable} from "@openzeppelin-upgrades/contracts/utils/cryptography/ECDSAUpgradeable.sol";
 import {IERC1271Upgradeable} from "@openzeppelin-upgrades/contracts/interfaces/IERC1271Upgradeable.sol";
 import "@eigenlayer/contracts/libraries/BytesLib.sol";
-import {IHelloWorldServiceManager} from "./interfaces/IHelloWorldServiceManager.sol";
+import {IQuillShieldServiceManager} from "./interfaces/IQuillShieldServiceManager.sol";
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@eigenlayer/contracts/interfaces/IRewardsCoordinator.sol";
@@ -55,12 +55,12 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
  * @title Primary entrypoint for procuring services from HelloWorld.
  * @author Eigen Labs, Inc.
  */
-contract HelloWorldServiceManager is
+contract QuillShieldServiceManager is
     Initializable,
     OperatorAllowlist,
     ECDSAServiceManagerBase,
     QuillInsurance,
-    IHelloWorldServiceManager
+    IQuillShieldServiceManager
 {
     using ECDSAUpgradeable for bytes32;
     using BytesLib for bytes;

@@ -11,9 +11,6 @@ const app = express();
 const PORT = 3000;
 
 
-
-
-
 const provider = new ethers.JsonRpcProvider(process.env.INFURA_RPC);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
@@ -102,14 +99,10 @@ app.post('/api/verifyClaim', async (req: Request, res: Response) => {
     }
 });
 
-
-
 // Serve index.html for the root route
 app.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-
 
 
 // Start the server
