@@ -7,7 +7,11 @@
 
 # Steps to build and deploy the project
 
+## Development Environment
+This section describes the tooling required for local development.
 
+Node - v22.2.0
+Npm - v10.7.0
 
 ## 1. Building the project 
 
